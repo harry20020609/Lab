@@ -26,7 +26,7 @@ public class Main
                     String temp = token.getText().substring(1);
                     text = String.valueOf(Integer.parseInt(temp,8));
                 }
-                System.err.println(sysYLexer.getRuleNames()[token.getType() - 1] + " " + text + " at Line " + token.getLine());
+                System.err.println(sysYLexer.getRuleNames()[token.getType() - 1] + " " + text + " at Line " + token.getLine()+".");
             }
         }
     }
