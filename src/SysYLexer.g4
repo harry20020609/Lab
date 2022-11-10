@@ -1,7 +1,5 @@
 lexer grammar SysYLexer;
-@header {
-package sysylexer;
-}
+
 CONST : 'const';
 
 INT : 'int';
