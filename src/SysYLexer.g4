@@ -74,7 +74,7 @@ fragment DECIMAL : '0' | ([1-9] DIGIT*);
 
 fragment OCTAL : ('0')('0' | ([1-7] [0-7]*));
 
-fragment HEXADECIMAL : ('0x' | '0X')('0' | ([A-E1-9] [A-E0-9]*));
+fragment HEXADECIMAL : ('0x' | '0X')('0' | ([a-fA-F1-9] [a-fA-F0-9]*));
 
 WS : [ \r\n\t]+ ->skip;
 
