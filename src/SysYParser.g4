@@ -32,7 +32,6 @@ funcType: VOID
 
 funcFParams: funcFParam (COMMA funcFParam)*;
 
-//funcParam:exp;
 funcFParam: bType IDENT (L_BRACKT R_BRACKT(L_BRACKT exp R_BRACKT)*)?;
 
 block: L_BRACE (blockItem)* R_BRACE;
@@ -73,7 +72,13 @@ unaryExp: primaryExp | IDENT L_PAREN (funcRParams)? R_PAREN | unaryOp unaryExp;
 
 unaryOp: PLUS | MINUS | NOT;
 
-funcRParams: exp (COMMA exp)*;
+funcRParams
+   : param (COMMA param)*
+   ;
+
+param
+   : exp
+   ;
 
 mulExp: unaryExp | mulExp (MUL | DIV | MOD) unaryExp;
 
