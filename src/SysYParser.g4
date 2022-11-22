@@ -80,17 +80,17 @@ param
    : exp
    ;
 
-mulExp: unaryExp | mulExp (MUL | DIV | MOD) unaryExp;
-
-addExp: mulExp | addExp (PLUS | MINUS) mulExp;
-
-relExp: addExp | relExp (LT | GT | LE | GE) addExp;
-
-eqExp: relExp | eqExp (EQ | NEQ) relExp;
-
-lAndExp: eqExp | lAndExp AND eqExp;
-
-lOrExp: lAndExp | lOrExp OR lAndExp;
+//mulExp: unaryExp | mulExp (MUL | DIV | MOD) unaryExp;
+//
+//addExp: mulExp | addExp (PLUS | MINUS) mulExp;
+//
+//relExp: addExp | relExp (LT | GT | LE | GE) addExp;
+//
+//eqExp: relExp | eqExp (EQ | NEQ) relExp;
+//
+//lAndExp: eqExp | lAndExp AND eqExp;
+//
+//lOrExp: lAndExp | lOrExp OR lAndExp;
 
 constExp: exp;
 
