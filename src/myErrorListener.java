@@ -6,7 +6,7 @@ public class myErrorListener extends BaseErrorListener {
     public boolean fault = false;
     public void syntaxError(Recognizer<?,?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e){
         fault = true;
-        System.err.println("Error type A at Line "+line+":"+msg+".");
+        System.err.println("Error type B at Line "+line+":"+msg+".");
     }
 
 
