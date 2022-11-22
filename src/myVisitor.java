@@ -25,7 +25,7 @@ public class myVisitor extends SysYParserBaseVisitor<Void>{
             space = space + "  ";
         }
         String res = ruleNames[node.getRuleContext().getRuleIndex()];
-        System.out.println(space + res.substring(0,1).toUpperCase()+res.substring(1));
+        System.err.println(space + res.substring(0,1).toUpperCase()+res.substring(1));
         spaceCount++;
         Void result = this.defaultResult();
         int n = node.getChildCount();
@@ -45,7 +45,7 @@ public class myVisitor extends SysYParserBaseVisitor<Void>{
             space = space + "  ";
         }
         if(node.getSymbol().getType()!=-1 && (node.getSymbol().getType()<=24 || node.getSymbol().getType()==33 || node.getSymbol().getType()==34)) {
-            System.out.println(space + node.getText() + " " + colors[node.getSymbol().getType() - 1]);
+            System.err.println(space + node.getText() + " " + colors[node.getSymbol().getType() - 1]);
         }
         return super.visitTerminal(node);
     }
