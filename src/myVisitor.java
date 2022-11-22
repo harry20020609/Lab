@@ -9,11 +9,10 @@ public class myVisitor extends SysYParserBaseVisitor<Void>{
             "COMMA=31","SEMICOLON=32", "IDENT[red]","INTEGR_CONST[green]","WS=35","LINE_COMMENT=36","MULTILINE_COMMENT=37"};
 
     public String[] ruleNames ={
-        "program", "compUnit", "decl", "constDecl", "bType", "constDef", "constInitVal",
-                "varDecl", "varDef", "initVal", "funcDef", "funcType", "funcFParams",
-                "funcFParam", "block", "blockItem", "stmt", "exp", "cond", "lVal", "primaryExp",
-                "number", "unaryExp", "unaryOp", "funcRParams", "mulExp", "addExp", "relExp",
-                "eqExp", "lAndExp", "lOrExp", "constExp"
+            "program", "compUnit", "decl", "constDecl", "bType", "constDef", "constInitVal",
+            "varDecl", "varDef", "initVal", "funcDef", "funcType", "funcFParams",
+            "funcFParam", "block", "blockItem", "stmt", "exp", "cond", "lVal", "number",
+            "unaryOp", "funcRParams", "param", "constExp"
     };
 
     RuleNode father;
