@@ -45,7 +45,16 @@ public class myVisitor extends SysYParserBaseVisitor<Void>{
             space = space + "  ";
         }
         if(node.getSymbol().getType()!=-1 && (node.getSymbol().getType()<=24 || node.getSymbol().getType()==33 || node.getSymbol().getType()==34)) {
-            System.err.println(space + node.getText() + " " + colors[node.getSymbol().getType() - 1]);
+            String text = node.getText();
+            if(node.getText().startsWith("0x")||node.getText().startsWith("0X")){
+                String temp = node.getText().substring(2);
+                text = String.valueOf(Integer.parseInt(temp,16));
+            }
+            else if(node.getText().startsWith("0") && node.getText().length()>1){
+                String temp = node.getText().substring(1);
+                text = String.valueOf(Integer.parseInt(temp,8));
+            }
+            System.err.println(space + text + " " + colors[node.getSymbol().getType() - 1]);
         }
         return super.visitTerminal(node);
     }
