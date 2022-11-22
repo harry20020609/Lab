@@ -16,8 +16,9 @@ public class myVisitor extends SysYParserBaseVisitor<Void>{
                 "eqExp", "lAndExp", "lOrExp", "constExp"
     };
 
-    public int spaceCount = 0;
+    RuleNode father;
 
+    int spaceCount = 0;
     @Override
     public Void visitChildren(RuleNode node) {
         String space = "";

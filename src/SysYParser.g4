@@ -92,7 +92,7 @@ lAndExp: eqExp | lAndExp AND eqExp;
 
 lOrExp: lAndExp | lOrExp OR lAndExp;
 
-constExp: addExp;
+constExp: exp;
 
 
 
