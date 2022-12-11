@@ -159,7 +159,7 @@ public class SymbolTableListener extends SysYParserBaseListener {
         }
         FunctionType functionType = (FunctionType) symbol.getType();
         ArrayList<Type> arrayList = functionType.getParamsType();
-        if(ctx.funcRParams()==null && arrayList.size()!=0){
+        if(ctx.funcRParams().param()==null && arrayList.size()!=0){
             return ;
         }
         if(ctx.funcRParams().param().size() != arrayList.size()){
