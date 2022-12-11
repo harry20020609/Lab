@@ -57,10 +57,12 @@ public class myVisitor extends SysYParserBaseVisitor<Void> {
                 String temp = node.getText().substring(1);
                 text = String.valueOf(Integer.parseInt(temp,8));
             }
-            for(int l=0;l< target.getLineno().size();l++){
-                if(node.getSymbol().getLine()==target.getLineno(l)){
-                    if(text.equals(target.getName())){
-                        text = change;
+            if(target!=null) {
+                for (int l = 0; l < target.getLineno().size(); l++) {
+                    if (node.getSymbol().getLine() == target.getLineno(l)) {
+                        if (text.equals(target.getName())) {
+                            text = change;
+                        }
                     }
                 }
             }
