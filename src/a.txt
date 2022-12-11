@@ -1,11 +1,12 @@
-int a(){
-    return 1;
+int a() {
+    return 10;
 }
 
-int main(){
-    int test1;
-    int array[2] = {0,0};
-    test1();
+int c = a();
 
-    return 1;
+int main() {
+    int a = 3;
+    int b = 4;
+    a = 5;
+    return a;
 }

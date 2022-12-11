@@ -34,7 +34,7 @@ public class SymbolTableListener extends SysYParserBaseListener {
         FunctionSymbol functionSymbol = new FunctionSymbol(funcName,currentScope);
         functionSymbol.getType().setRetType(type);
         functionSymbol.addLineno(lineno);
-        functionSymbol.addColumnno(columnno);
+        functionSymbol.addColumnno(columnno+typeName.length()+1);
         if(ctx.funcFParams()!=null) {
             for (int i = 0; i < ctx.funcFParams().funcFParam().size(); i++) {
                 SysYParser.FuncFParamContext funcFParamContext = ctx.funcFParams().funcFParam(i);
