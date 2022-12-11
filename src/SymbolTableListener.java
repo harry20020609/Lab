@@ -155,6 +155,7 @@ public class SymbolTableListener extends SysYParserBaseListener {
         }
         if(!(symbol.getType() instanceof FunctionType)){
             System.err.println("Error type 10 at Line "+ctx.start.getLine()+": Not a function: "+ctx.IDENT().getText()+".");
+            fault = true;
             return;
         }
         symbol.addLineno(ctx.start.getLine());
