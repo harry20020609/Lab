@@ -191,6 +191,10 @@ public class SymbolTableListener extends SysYParserBaseListener {
                 }
                 else{
                     Symbol para = currentScope.resolve(paraName);
+                    //TODO
+                    if(Pattern.compile("^[-+]?\\d+(\\.\\d+)?$").matcher(paraName).matches()){
+                        continue;
+                    }
                     if(para.getType() instanceof ArrayType){
                         System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
                         return;
@@ -334,6 +338,10 @@ public class SymbolTableListener extends SysYParserBaseListener {
             if(LSymbol.getType() instanceof FunctionType){
                 System.err.println("Error type 11 at Line "+ctx.start.getLine()+": The left-hand side of an assignment must be a variable.");
                 return;
+            }
+            //TODO
+            if(RSymbol == null){
+                return ;
             }
             if(RSymbol.getType() instanceof FunctionType){
                 if(LCount>0){
