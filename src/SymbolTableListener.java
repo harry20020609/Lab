@@ -53,12 +53,16 @@ public class SymbolTableListener extends SysYParserBaseListener {
                 int paraColumnno = funcFParamContext.start.getCharPositionInLine();
                 varSymbol.addLineno(paraLineno);
                 varSymbol.addColumnno(paraColumnno);
-                all.add(varSymbol);
                 currentScope.define(varSymbol);
+                if(!currentScope.checkDirty()){
+                    all.add(varSymbol);
+                }
             }
         }
-        all.add(functionSymbol);
         currentScope.define(functionSymbol);//define the function symbol
+        if(!currentScope.checkDirty()){
+            all.add(functionSymbol);
+        }
         currentScope = functionSymbol;
     }
 
@@ -100,8 +104,10 @@ public class SymbolTableListener extends SysYParserBaseListener {
             varSymbol = new VariableSymbol(varName, type);
             varSymbol.addLineno(lineno);
             varSymbol.addColumnno(columnno);
-            all.add(varSymbol);
             currentScope.define(varSymbol);
+            if(!currentScope.checkDirty()){
+                all.add(varSymbol);
+            }
         }
     }
 

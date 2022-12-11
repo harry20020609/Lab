@@ -27,17 +27,27 @@ public class BaseScope implements Scope{
         return this.symbols;
     }
 
+    public boolean dirty = false;
+
+    public boolean checkDirty(){
+        return dirty;
+    }
+
     public void define(Symbol symbol) {
         if(symbols.containsKey(symbol.getName())){
             if(symbol instanceof FunctionSymbol){
                 FunctionSymbol fs = (FunctionSymbol) symbol;
                 fs.errOutput();
+                dirty = true;
+                return;
             }
             else{
                 symbol.errOutput();
+                dirty = true;
+                return;
             }
-            return;
         }
+        dirty = false;
         symbols.put(symbol.getName(), symbol);
         System.out.println("+" + symbol.getName());
     }

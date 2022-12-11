@@ -15,4 +15,6 @@ public interface Scope {
     public void checkVariable(String varName, int line);
 
     public void checkFunction(String funcName, int line);
+
+    public boolean checkDirty();
 }

@@ -51,6 +51,6 @@ public class FunctionSymbol extends BaseScope implements Symbol{
 
     @Override
     public void errOutput() {
-        System.err.println("Error type 4 at Line " + this.lineno + ": Redefined function: " + this.getName() + ".");
+        System.err.println("Error type 4 at Line " + this.lineno.get(0) + ": Redefined function: " + this.getName() + ".");
     }
 }

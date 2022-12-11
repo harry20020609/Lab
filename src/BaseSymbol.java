@@ -19,7 +19,7 @@ public class BaseSymbol implements Symbol{
 
     @Override
     public void errOutput() {
-        System.err.println("Error type 3 at Line " +this.lineno + ": Redefined variable: " + this.name + ".");
+        System.err.println("Error type 3 at Line " +this.lineno.get(0) + ": Redefined variable: " + this.name + ".");
     }
 
     public String getName() {
