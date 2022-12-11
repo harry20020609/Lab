@@ -164,6 +164,9 @@ public class SymbolTableListener extends SysYParserBaseListener {
                 System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
                 return;
             }
+            else{
+                return;
+            }
         }
         if(ctx.funcRParams().param().size() != arrayList.size()){
             System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
