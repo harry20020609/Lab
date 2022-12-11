@@ -1,9 +1,9 @@
 /src/SysYLexer.java
-/SysYParser.java
-/SysYParserBaseListener.java
-/SysYParserBaseVisitor.java
-/SysYParserListener.java
-/SysYParserVisitor.java
+/src/SysYParser.java
+/src/SysYParserBaseListener.java
+/src/SysYParserBaseVisitor.java
+/src/SysYParserListener.java
+/src/SysYParserVisitor.java
 /classes
 /target
 .DS_Store

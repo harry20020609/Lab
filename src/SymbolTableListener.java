@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.regex.Pattern;
+import gen.*;
 
 public class SymbolTableListener extends SysYParserBaseListener {
     private GlobalScope globalScope = null;
@@ -317,6 +318,10 @@ public class SymbolTableListener extends SysYParserBaseListener {
             LName = getOff(LName);
             Symbol LSymbol = currentScope.resolve(LName);
             Symbol RSymbol = currentScope.resolve(RName);
+            if(Pattern.compile("^[-+]?\\d+(\\.\\d+)?$").matcher(LName).matches()){
+                System.err.println("Error type 11 at Line "+ctx.start.getLine()+": The left-hand side of an assignment must be a variable.");
+                return;
+            }
             if(LSymbol.getType() instanceof FunctionType){
                 System.err.println("Error type 11 at Line "+ctx.start.getLine()+": The left-hand side of an assignment must be a variable.");
                 return;
