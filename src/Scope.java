@@ -17,4 +17,8 @@ public interface Scope {
     public void checkFunction(String funcName, int line);
 
     public boolean checkDirty();
+
+    public void setListener(SymbolTableListener listener);
+
+    public SymbolTableListener getListener();
 }

@@ -53,12 +53,14 @@ public class SymbolTableListener extends SysYParserBaseListener {
                 int paraColumnno = funcFParamContext.start.getCharPositionInLine();
                 varSymbol.addLineno(paraLineno);
                 varSymbol.addColumnno(paraColumnno);
+                currentScope.setListener(this);
                 currentScope.define(varSymbol);
                 if(!currentScope.checkDirty()){
                     all.add(varSymbol);
                 }
             }
         }
+        currentScope.setListener(this);
         currentScope.define(functionSymbol);//define the function symbol
         if(!currentScope.checkDirty()){
             all.add(functionSymbol);
@@ -104,6 +106,7 @@ public class SymbolTableListener extends SysYParserBaseListener {
             varSymbol = new VariableSymbol(varName, type);
             varSymbol.addLineno(lineno);
             varSymbol.addColumnno(columnno);
+            currentScope.setListener(this);
             currentScope.define(varSymbol);
             if(!currentScope.checkDirty()){
                 all.add(varSymbol);
@@ -125,6 +128,7 @@ public class SymbolTableListener extends SysYParserBaseListener {
     @Override
     public void exitLVal(SysYParser.LValContext ctx) {
         String varName = ctx.IDENT().getText();
+        currentScope.setListener(this);
         currentScope.checkVariable(varName,ctx.start.getLine());
         Symbol symbol = currentScope.resolve(varName);
         if(symbol==null){
@@ -143,6 +147,7 @@ public class SymbolTableListener extends SysYParserBaseListener {
     @Override
     public void enterCallFuncExp(SysYParser.CallFuncExpContext ctx) {
         String funcName = ctx.IDENT().getText();
+        currentScope.setListener(this);
         currentScope.checkFunction(funcName,ctx.start.getLine());
         Symbol symbol = currentScope.resolve(funcName);
         if(symbol==null){

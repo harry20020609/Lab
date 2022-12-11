@@ -6,6 +6,18 @@ public class BaseScope implements Scope{
     private final Map<String, Symbol> symbols = new LinkedHashMap<>();
     private String name;
 
+    public SymbolTableListener listener;
+
+    @Override
+    public void setListener(SymbolTableListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public SymbolTableListener getListener() {
+        return listener;
+    }
+
     public BaseScope(String name, Scope enclosingScope) {
         this.name = name;
         this.enclosingScope = enclosingScope;
@@ -38,11 +50,13 @@ public class BaseScope implements Scope{
             if(symbol instanceof FunctionSymbol){
                 FunctionSymbol fs = (FunctionSymbol) symbol;
                 fs.errOutput();
+                listener.fault = true;
                 dirty = true;
                 return;
             }
             else{
                 symbol.errOutput();
+                listener.fault = true;
                 dirty = true;
                 return;
             }
@@ -56,6 +70,7 @@ public class BaseScope implements Scope{
         if(!symbols.containsKey(name)){
             if(enclosingScope==null){
                 System.err.println("Error type 1 at Line "+lineno+": Undefined variable: "+name+".");
+                listener.fault = true;
                 return ;
             }
             enclosingScope.checkVariable(name,lineno);
@@ -66,6 +81,7 @@ public class BaseScope implements Scope{
         if(!symbols.containsKey(name)){
             if(enclosingScope==null){
                 System.err.println("Error type 2 at Line "+lineno+": Undefined function: "+name+".");
+                listener.fault = true;
                 return ;
             }
             enclosingScope.checkFunction(name,lineno);
