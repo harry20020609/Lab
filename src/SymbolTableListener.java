@@ -159,9 +159,8 @@ public class SymbolTableListener extends SysYParserBaseListener {
         }
         FunctionType functionType = (FunctionType) symbol.getType();
         ArrayList<Type> arrayList = functionType.getParamsType();
-        if(ctx.funcRParams().param()==null && arrayList.size()!=0){
-            System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
-            return;
+        if(ctx.funcRParams()==null && arrayList.size()!=0){
+            return ;
         }
         if(ctx.funcRParams().param().size() != arrayList.size()){
             System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
