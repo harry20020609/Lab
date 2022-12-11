@@ -195,6 +195,9 @@ public class SymbolTableListener extends SysYParserBaseListener {
                     if(Pattern.compile("^[-+]?\\d+(\\.\\d+)?$").matcher(paraName).matches()){
                         continue;
                     }
+                    if(para == null){
+                        return;
+                    }
                     if(para.getType() instanceof ArrayType){
                         System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
                         return;
