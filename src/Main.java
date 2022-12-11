@@ -1,8 +1,11 @@
+
+import gen.SysYLexer;
+import gen.SysYParser;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import java.io.*;
-import java.util.List;
 
 public class Main
 {    
@@ -18,29 +21,17 @@ public class Main
         sysYParser.removeErrorListeners();
         myErrorListener errorListener = new myErrorListener();
         sysYParser.addErrorListener(errorListener);
+
         ParseTree tree = sysYParser.program();
-        myVisitor visitor = new myVisitor();
-        if(!errorListener.fault) {
-            visitor.visit(tree);
-        }
-//        sysYLexer.removeErrorListeners();
-//        myErrorListener errorListener = new myErrorListener();
-//        sysYLexer.addErrorListener(errorListener);
-//        List<? extends Token> sysYLexerAllTokens = sysYLexer.getAllTokens();
+        ParseTreeWalker walker = new ParseTreeWalker();
+        SymbolTableListener symtableListener = new SymbolTableListener();
+        walker.walk(symtableListener, tree);
+
+//        myVisitor visitor = new myVisitor();
 //        if(!errorListener.fault) {
-//            for (Token token : sysYLexerAllTokens) {
-//                String text = token.getText();
-//                if(token.getText().startsWith("0x")||token.getText().startsWith("0X")){
-//                    String temp = token.getText().substring(2);
-//                    text = String.valueOf(Integer.parseInt(temp,16));
-//                }
-//                else if(token.getText().startsWith("0") && token.getText().length()>1){
-//                    String temp = token.getText().substring(1);
-//                    text = String.valueOf(Integer.parseInt(temp,8));
-//                }
-//                System.err.println(sysYLexer.getRuleNames()[token.getType() - 1] + " " + text + " at Line " + token.getLine()+".");
-//            }
+//            visitor.visit(tree);
 //        }
+
     }
 
 

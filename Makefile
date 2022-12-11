@@ -9,7 +9,7 @@ JAVA = java
 
 
 PFILE = $(shell find . -name "SysYParser.g4")
-LFILE = $(shell find . -name "SysYLexer.g4")
+LFILE = $(shell find . -name "gen.SysYLexer.g4")
 JAVAFILE = $(shell find . -name "*.java")
 ANTLRPATH = $(shell find /usr/local/lib -name "antlr-*-complete.jar")
 
@@ -34,7 +34,7 @@ test: compile
 clean:
 	rm -f src/*.tokens
 	rm -f src/*.interp
-	rm -f src/SysYLexer.java src/SysYParser.java src/SysYParserBaseListener.java src/SysYParserBaseVisitor.java src/SysYParserListener.java src/SysYParserVisitor.java
+	rm -f src/gen.SysYLexer.java src/SysYParser.java src/SysYParserBaseListener.java src/SysYParserBaseVisitor.java src/SysYParserListener.java src/SysYParserVisitor.java
 	rm -rf classes
 
 
