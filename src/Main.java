@@ -39,12 +39,12 @@ public class Main
             }
         }
 
-        if(!symtableListener.fault) {
-            myVisitor visitor = new myVisitor();
-            visitor.target = target;
-            visitor.change = change;
-            visitor.visit(tree);
-        }
+//        if(!symtableListener.fault) {
+//            myVisitor visitor = new myVisitor();
+//            visitor.target = target;
+//            visitor.change = change;
+//            visitor.visit(tree);
+//        }
 
     }
 
