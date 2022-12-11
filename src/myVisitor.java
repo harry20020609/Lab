@@ -16,7 +16,9 @@ public class myVisitor extends SysYParserBaseVisitor<Void> {
             "unaryOp", "funcRParams", "param", "constExp"
     };
 
-    RuleNode father;
+    public Symbol target;
+
+    public String change;
 
     int spaceCount = 0;
     @Override
@@ -54,6 +56,13 @@ public class myVisitor extends SysYParserBaseVisitor<Void> {
             else if(node.getText().startsWith("0") && node.getText().length()>1){
                 String temp = node.getText().substring(1);
                 text = String.valueOf(Integer.parseInt(temp,8));
+            }
+            for(int l=0;l< target.getLineno().size();l++){
+                if(node.getSymbol().getLine()==target.getLineno(l)){
+                    if(text.equals(target.getName())){
+                        text = change;
+                    }
+                }
             }
             System.err.println(space + text + " " + colors[node.getSymbol().getType() - 1]);
         }

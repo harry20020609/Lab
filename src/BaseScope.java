@@ -72,11 +72,9 @@ public class BaseScope implements Scope{
             System.out.println("*" + name);
             return symbol;
         }
-
         if (enclosingScope != null) {
             return enclosingScope.resolve(name);
         }
-
 //        System.err.println("Cannot find " + name);
         return null;
     }

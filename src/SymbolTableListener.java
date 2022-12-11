@@ -1,13 +1,22 @@
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 import gen.*;
 
 public class SymbolTableListener extends SysYParserBaseListener {
+
+    private ArrayList<Symbol> all = new ArrayList<>();
     private GlobalScope globalScope = null;
 
     private Scope currentScope = null;
 
     private int localScopeCounter = 0;
+
+    public boolean fault = false;
+
+    public ArrayList<Symbol> getAll(){
+        return this.all;
+    }
 
     @Override
     public void enterProgram(SysYParser.ProgramContext ctx) {
@@ -24,8 +33,8 @@ public class SymbolTableListener extends SysYParserBaseListener {
         int columnno = ctx.start.getCharPositionInLine();
         FunctionSymbol functionSymbol = new FunctionSymbol(funcName,currentScope);
         functionSymbol.getType().setRetType(type);
-        functionSymbol.setLineno(lineno);
-        functionSymbol.setColumnno(columnno);
+        functionSymbol.addLineno(lineno);
+        functionSymbol.addColumnno(columnno);
         if(ctx.funcFParams()!=null) {
             for (int i = 0; i < ctx.funcFParams().funcFParam().size(); i++) {
                 SysYParser.FuncFParamContext funcFParamContext = ctx.funcFParams().funcFParam(i);
@@ -42,19 +51,13 @@ public class SymbolTableListener extends SysYParserBaseListener {
                 }
                 int paraLineno = funcFParamContext.start.getLine();
                 int paraColumnno = funcFParamContext.start.getCharPositionInLine();
-                varSymbol.setLineno(paraLineno);
-                varSymbol.setColumnno(paraColumnno);
+                varSymbol.addLineno(paraLineno);
+                varSymbol.addColumnno(paraColumnno);
+                all.add(varSymbol);
                 currentScope.define(varSymbol);
             }
         }
-//        String typeName = ctx.funcType().getText();
-//        globalScope.resolve(typeName);
-//        String funName = ctx.IDENT().getText();
-//        FunctionSymbol fun = new FunctionSymbol(funName, currentScope);
-//        int lineno = ctx.start.getLine();
-//        int colunmno = ctx.start.getCharPositionInLine();
-//        fun.setColumnno(colunmno);
-//        fun.setLineno(lineno);
+        all.add(functionSymbol);
         currentScope.define(functionSymbol);//define the function symbol
         currentScope = functionSymbol;
     }
@@ -95,8 +98,9 @@ public class SymbolTableListener extends SysYParserBaseListener {
             int columnno = ctx.varDef(i).start.getCharPositionInLine();
             varName = ctx.varDef(i).IDENT().getText();
             varSymbol = new VariableSymbol(varName, type);
-            varSymbol.setLineno(lineno);
-            varSymbol.setColumnno(columnno);
+            varSymbol.addLineno(lineno);
+            varSymbol.addColumnno(columnno);
+            all.add(varSymbol);
             currentScope.define(varSymbol);
         }
     }
@@ -112,24 +116,6 @@ public class SymbolTableListener extends SysYParserBaseListener {
         }
     }
 
-//    @Override
-//    public void exitFuncFParam(SysYParser.FuncFParamContext ctx) {
-//        String typeName = ctx.bType().getText();
-//        Type type = (Type) globalScope.resolve(typeName);
-//        String varName = ctx.IDENT().getText();
-//        VariableSymbol varSymbol = new VariableSymbol(varName, type);
-//        if(ctx.L_BRACKT().size()!=0){
-//            ArrayType arrayType = new ArrayType(type);
-//        }
-//        int lineno = ctx.start.getLine();
-//        int columnno = ctx.start.getCharPositionInLine();
-//        varSymbol.setLineno(lineno);
-//        varSymbol.setColumnno(columnno);
-//        FunctionSymbol fs = (FunctionSymbol) currentScope;
-//        fs.getType().addParamsType(type);
-//        currentScope.define(varSymbol);
-//    }
-
     @Override
     public void exitLVal(SysYParser.LValContext ctx) {
         String varName = ctx.IDENT().getText();
@@ -138,9 +124,12 @@ public class SymbolTableListener extends SysYParserBaseListener {
         if(symbol==null){
             return;
         }
+        symbol.addLineno(ctx.start.getLine());
+        symbol.addColumnno(ctx.start.getCharPositionInLine());
         if(ctx.L_BRACKT().size()!=0){
             if(!(symbol.getType() instanceof ArrayType)){
                 System.err.println("Error type 9 at Line "+ctx.start.getLine()+": Not an array: "+ctx.IDENT().getText()+".");
+                fault = true;
             }
         }
     }
@@ -157,11 +146,14 @@ public class SymbolTableListener extends SysYParserBaseListener {
             System.err.println("Error type 10 at Line "+ctx.start.getLine()+": Not a function: "+ctx.IDENT().getText()+".");
             return;
         }
+        symbol.addLineno(ctx.start.getLine());
+        symbol.addColumnno(ctx.start.getCharPositionInLine());
         FunctionType functionType = (FunctionType) symbol.getType();
         ArrayList<Type> arrayList = functionType.getParamsType();
         if(ctx.funcRParams()==null || ctx.funcRParams().param()==null){
             if(arrayList.size()!=0){
                 System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
+                fault = true;
                 return;
             }
             else{
@@ -170,6 +162,7 @@ public class SymbolTableListener extends SysYParserBaseListener {
         }
         if(ctx.funcRParams().param().size() != arrayList.size()){
             System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
+            fault = true;
             return;
         }
         else{
@@ -179,19 +172,20 @@ public class SymbolTableListener extends SysYParserBaseListener {
                 if(arrayList.get(i) instanceof ArrayType){
                     if(Pattern.compile("^[-+]?\\d+(\\.\\d+)?$").matcher(paraName).matches()){
                         System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
+                        fault = true;
                         return;
                     }
                     else{
                         Symbol para = currentScope.resolve(paraName);
                         if(!(para.getType() instanceof ArrayType)){
                             System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
+                            fault = true;
                             return;
                         }
                     }
                 }
                 else{
                     Symbol para = currentScope.resolve(paraName);
-                    //TODO
                     if(Pattern.compile("^[-+]?\\d+(\\.\\d+)?$").matcher(paraName).matches()){
                         continue;
                     }
@@ -200,6 +194,7 @@ public class SymbolTableListener extends SysYParserBaseListener {
                     }
                     if(para.getType() instanceof ArrayType){
                         System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
+                        fault = true;
                         return;
                     }
                 }
@@ -229,6 +224,7 @@ public class SymbolTableListener extends SysYParserBaseListener {
                     BasicTypeSymbol retType = (BasicTypeSymbol)  type.getRetType();
                     if(!retType.name.equals("int")){
                         System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+                        fault = true;
                         break;
                     }
                 }
@@ -238,12 +234,14 @@ public class SymbolTableListener extends SysYParserBaseListener {
                         int dim = at.getDimension();
                         if(dim-count>0){
                             System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+                            fault = true;
                         }
                     }
                     else{
                         BasicTypeSymbol bt = (BasicTypeSymbol) symbol.getType();
                         if(!bt.name.equals("int")){
                             System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+                            fault = true;
                         }
                     }
                 }
@@ -273,6 +271,7 @@ public class SymbolTableListener extends SysYParserBaseListener {
                     BasicTypeSymbol retType = (BasicTypeSymbol)  type.getRetType();
                     if(!retType.name.equals("int")){
                         System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+                        fault = true;
                         break;
                     }
                 }
@@ -282,12 +281,14 @@ public class SymbolTableListener extends SysYParserBaseListener {
                         int dim = at.getDimension();
                         if(dim-count>0){
                             System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+                            fault = true;
                         }
                     }
                     else{
                         BasicTypeSymbol bt = (BasicTypeSymbol) symbol.getType();
                         if(!bt.name.equals("int")){
                             System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+                            fault = true;
                         }
                     }
                 }
@@ -336,13 +337,14 @@ public class SymbolTableListener extends SysYParserBaseListener {
             Symbol RSymbol = currentScope.resolve(RName);
             if(LSymbol==null){
                 System.err.println("Error type 11 at Line "+ctx.start.getLine()+": The left-hand side of an assignment must be a variable.");
+                fault = true;
                 return;
             }
             if(LSymbol.getType() instanceof FunctionType){
                 System.err.println("Error type 11 at Line "+ctx.start.getLine()+": The left-hand side of an assignment must be a variable.");
+                fault = true;
                 return;
             }
-            //TODO
             if(RSymbol == null){
                 return ;
             }
@@ -351,6 +353,7 @@ public class SymbolTableListener extends SysYParserBaseListener {
                     ArrayType Lat = (ArrayType) LSymbol.getType();
                     if(Lat.getDimension()-LCount != 0){
                         System.err.println("Error type 5 at Line " + ctx.start.getLine() + ": type.Type mismatched for assignment.");
+                        fault = true;
                     }
                 }
                 else {
@@ -358,6 +361,7 @@ public class SymbolTableListener extends SysYParserBaseListener {
                     BasicTypeSymbol bt = (BasicTypeSymbol) rType.getRetType();
                     if (bt.name.equals("void") || rType.getRetType().getClass() == LSymbol.getType().getClass()) {
                         System.err.println("Error type 5 at Line " + ctx.start.getLine() + ": type.Type mismatched for assignment.");
+                        fault = true;
                     }
                 }
             }
@@ -368,12 +372,14 @@ public class SymbolTableListener extends SysYParserBaseListener {
                         ArrayType Lat = (ArrayType) LSymbol.getType();
                         if(Rat.getDimension()-RCount != Lat.getDimension()-LCount){
                             System.err.println("Error type 5 at Line " + ctx.start.getLine() +": type.Type mismatched for assignment.");
+                            fault = true;
                         }
                     }
                     else{
                         ArrayType Rat = (ArrayType) RSymbol.getType();
                         if(Rat.getDimension() - RCount != 0){
                             System.err.println("Error type 5 at Line " + ctx.start.getLine() +": type.Type mismatched for assignment.");
+                            fault = true;
                         }
                     }
                 }
@@ -382,11 +388,13 @@ public class SymbolTableListener extends SysYParserBaseListener {
                         ArrayType Lat = (ArrayType) LSymbol.getType();
                         if(Lat.getDimension()-LCount != 0){
                             System.err.println("Error type 5 at Line " + ctx.start.getLine() + ": type.Type mismatched for assignment.");
+                            fault = true;
                         }
                     }
                     else {
                         if (RSymbol.getType().getClass() != LSymbol.getType().getClass()) {
                             System.err.println("Error type 5 at Line " + ctx.start.getLine() + ": type.Type mismatched for assignment.");
+                            fault = true;
                         }
                     }
                 }
@@ -399,13 +407,13 @@ public class SymbolTableListener extends SysYParserBaseListener {
             BasicTypeSymbol bs = (BasicTypeSymbol) funcType.getRetType();
             if(bs.name.equals("void")){
                 if(ctx.exp()!=null){
-                    System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");
+                    System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");fault = true;
                     return;
                 }
             }
             else{
                 if(ctx.exp()==null){
-                    System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");
+                    System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");fault = true;
                     return;
                 }
 
@@ -420,7 +428,7 @@ public class SymbolTableListener extends SysYParserBaseListener {
                 if(count>0){
                     ArrayType at = (ArrayType) varSymbol.getType();
                     if(at.getDimension()-count!=0){
-                        System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");
+                        System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");fault = true;
                         return;
                     }
                 }
@@ -434,11 +442,11 @@ public class SymbolTableListener extends SysYParserBaseListener {
                             return ;
                         }
                         else{
-                            System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");
+                            System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");fault = true;
                         }
                     }
                     else {
-                        System.err.println("Error type 7 at Line " + ctx.start.getLine() + ": type.Type mismatched for return.");
+                        System.err.println("Error type 7 at Line " + ctx.start.getLine() + ": type.Type mismatched for return.");fault = true;
                     }
                 }
 

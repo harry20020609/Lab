@@ -1,11 +1,12 @@
+import java.util.ArrayList;
 
 public class BaseSymbol implements Symbol{
     final String name;
     Type type;
 
-    private int lineno = -1;
+    private ArrayList<Integer> lineno = new ArrayList<>();
 
-    private int columnno = -1;
+    private ArrayList<Integer> columnno = new ArrayList<>();
 
     public BaseSymbol(String name, Type type) {
         this.name = name;
@@ -29,20 +30,28 @@ public class BaseSymbol implements Symbol{
         return type;
     }
 
-    public int getLineno(){
+    public ArrayList<Integer> getLineno(){
         return lineno;
     }
 
-    public void setLineno(int lineno){
-        this.lineno = lineno;
+    public int getLineno(int index){
+        return lineno.get(index);
     }
 
-    public int getColumnno(){
+    public void addLineno(int lineno){
+        this.lineno.add(lineno);
+    }
+
+    public ArrayList<Integer> getColumnno(){
         return columnno;
     }
 
-    public void setColumnno(int columnno){
-        this.columnno = columnno;
+    public int getColumnno(int index){
+        return columnno.get(index);
+    }
+
+    public void addColumnno(int columnno){
+        this.columnno.add(columnno);
     }
 
     public String toString() {
