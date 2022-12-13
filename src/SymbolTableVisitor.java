@@ -491,10 +491,18 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
                 return null;
             }
             if(symbol.getType() instanceof ArrayType){
-                if(!(functionSymbol.getType().getParamsType().get(i) instanceof ArrayType)){
+                ArrayType arrayType = (ArrayType) symbol.getType();
+                if(arrayType.getAccessDim()!=0 && !(functionSymbol.getType().getParamsType().get(i) instanceof ArrayType)){
                     System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
                     this.fault = true;
                     return null;
+                }
+                else if(arrayType.getAccessDim()==0){
+                    if(!(functionSymbol.getType().getParamsType().get(i).toString().equals("int"))){
+                        System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
+                        this.fault = true;
+                        return null;
+                    }
                 }
             }
             else{
