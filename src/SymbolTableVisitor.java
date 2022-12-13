@@ -294,6 +294,11 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             }
             FunctionSymbol functionSymbol = (FunctionSymbol) currentScope.getEnclosingScope();
             if(functionSymbol.getType().getRetType().toString().equals("void")){
+                if(expSymbol instanceof BasicTypeSymbol){
+                    System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");
+                    this.fault = true;
+                    return null;
+                }
                 if(expSymbol.getType().toString().equals("int")){
                     System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");
                     this.fault = true;
@@ -413,7 +418,14 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             return null;
         }
         FunctionSymbol trueFunctionSymbol = (FunctionSymbol) functionSymbol;
-        if(ctx.funcRParams().param().size()!=trueFunctionSymbol.getType().getParamsType().size()){
+        int paraNum = 0;
+        if(ctx.funcRParams()==null){
+            paraNum = 0;
+        }
+        else{
+            paraNum = ctx.funcRParams().param().size();
+        }
+        if(paraNum!=trueFunctionSymbol.getType().getParamsType().size()){
             System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
             this.fault = true;
             return null;
