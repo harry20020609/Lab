@@ -1,7 +1,6 @@
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import gen.*;
 
 public class myVisitor extends SysYParserBaseVisitor<Void> {
     public String[] colors = {"CONST[orange]","INT[orange]","VOID[orange]","IF[orange]","ELSE[orange]","WHILE[orange]","BREAK[orange]","CONTINUE[orange]","RETURN[orange]",
