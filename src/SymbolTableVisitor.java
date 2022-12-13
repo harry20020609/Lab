@@ -51,7 +51,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         if(ctx.L_BRACKT().size()>0){
             String varName = ctx.IDENT().getText();
             if(currentScope.resolve(varName)!=null){
-                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
+//                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
                 this.fault = true;
                 return null;
             }
@@ -64,7 +64,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         else{
             String varName = ctx.IDENT().getText();
             if(currentScope.resolve(varName)!=null){
-                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
+//                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
                 this.fault = true;
                 return null;
             }
@@ -100,7 +100,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         if(ctx.L_BRACKT().size()>0){
             String varName = ctx.IDENT().getText();
             if(currentScope.resolve(varName)!=null){
-                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
+//                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
                 this.fault = true;
                 return null;
             }
@@ -113,7 +113,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         else{
             String varName = ctx.IDENT().getText();
             if(currentScope.resolve(varName)!=null && !(currentScope.resolve(varName) instanceof FunctionSymbol)){
-                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
+//                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
                 this.fault = true;
                 return null;
             }
@@ -131,7 +131,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         functionType.retType = (Type) globalScope.resolve(ctx.funcType().getText());
         String functionName = ctx.IDENT().getText();
         if(currentScope.resolve(functionName)!=null){
-            System.err.println("Error type 4 at Line " +ctx.start.getLine() + ": Redefined function: " + functionName + ".");
+//            System.err.println("Error type 4 at Line " +ctx.start.getLine() + ": Redefined function: " + functionName + ".");
             this.fault = true;
             return null;
         }
@@ -170,7 +170,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         if(ctx.L_BRACKT().size()>0){
             String varName = ctx.IDENT().getText();
             if(currentScope.resolve(varName)!=null){
-                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
+//                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
                 this.fault = true;
                 return null;
             }
@@ -183,7 +183,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         else{
             String varName = ctx.IDENT().getText();
             if(currentScope.resolve(varName)!=null){
-                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
+//                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
                 this.fault = true;
                 return null;
             }
@@ -262,7 +262,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
                 expType = functionType.getRetType().toString();
             }
             if(!lvalType.equals(expType)){
-                System.err.println("Error type 5 at Line "+ctx.start.getLine()+": type.Type mismatched for assignment.");
+//                System.err.println("Error type 5 at Line "+ctx.start.getLine()+": type.Type mismatched for assignment.");
                 this.fault = true;
                 return null;
             }
@@ -408,7 +408,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         String functionName = ctx.IDENT().getText();
         Symbol functionSymbol = currentScope.resolve(functionName);
         if(functionSymbol==null){
-            System.err.println("Error type 2 at Line "+ctx.start.getLine()+": Undefined function: "+functionName+".");
+//            System.err.println("Error type 2 at Line "+ctx.start.getLine()+": Undefined function: "+functionName+".");
             this.fault = true;
             return null;
         }
