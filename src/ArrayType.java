@@ -1,7 +1,6 @@
 public class ArrayType implements Type{
     Type element;
     int dimension;
-
     int accessDim;
     public ArrayType(Type element) {
         this.element = element;
