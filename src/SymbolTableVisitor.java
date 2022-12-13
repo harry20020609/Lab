@@ -51,7 +51,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         if(ctx.L_BRACKT().size()>0){
             String varName = ctx.IDENT().getText();
             if(currentScope.resolve(varName)!=null){
-//                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
+                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
                 this.fault = true;
                 return null;
             }
@@ -64,7 +64,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         else{
             String varName = ctx.IDENT().getText();
             if(currentScope.resolve(varName)!=null){
-//                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
+                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
                 this.fault = true;
                 return null;
             }
@@ -100,7 +100,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         if(ctx.L_BRACKT().size()>0){
             String varName = ctx.IDENT().getText();
             if(currentScope.resolve(varName)!=null){
-//                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
+                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
                 this.fault = true;
                 return null;
             }
@@ -112,8 +112,8 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         }
         else{
             String varName = ctx.IDENT().getText();
-            if(currentScope.resolve(varName)!=null && !(currentScope.resolve(varName) instanceof FunctionSymbol)){
-//                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
+            if(currentScope.getSymbols().containsKey(varName)){
+                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
                 this.fault = true;
                 return null;
             }
@@ -170,7 +170,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         if(ctx.L_BRACKT().size()>0){
             String varName = ctx.IDENT().getText();
             if(currentScope.resolve(varName)!=null){
-//                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
+                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
                 this.fault = true;
                 return null;
             }
@@ -183,7 +183,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         else{
             String varName = ctx.IDENT().getText();
             if(currentScope.resolve(varName)!=null){
-//                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
+                System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
                 this.fault = true;
                 return null;
             }

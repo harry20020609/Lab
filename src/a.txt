@@ -1,8 +1,10 @@
-int a(int x,int y[]){
-    return 1;
+int a() {
+    return 10;
 }
 
-int main(){
-    int array[3] = {0,1,2};
-    return a(array[0],array);
+int main() {
+    int a = 3;
+    int b = 4;
+    a = 5;
+    return a;
 }

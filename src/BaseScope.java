@@ -3,7 +3,7 @@ import java.util.Map;
 
 public class BaseScope implements Scope{
     private final Scope enclosingScope;
-    private final Map<String, Symbol> symbols = new LinkedHashMap<>();
+    public final Map<String, Symbol> symbols = new LinkedHashMap<>();
     private String name;
 
     @Override
