@@ -14,6 +14,8 @@ public class SymbolTableListener extends SysYParserBaseListener {
 
     public boolean fault = false;
 
+    public boolean redefine = false;
+
     public ArrayList<Symbol> getAll(){
         return this.all;
     }

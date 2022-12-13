@@ -25,26 +25,28 @@ public class Main
         sysYParser.addErrorListener(errorListener);
 
         ParseTree tree = sysYParser.program();
-        ParseTreeWalker walker = new ParseTreeWalker();
-        SymbolTableListener symtableListener = new SymbolTableListener();
-        walker.walk(symtableListener, tree);
-
-        ArrayList<Symbol> arrayList = symtableListener.getAll();
-        Symbol target = null;
-        for(int i=0;i<arrayList.size();i++){
-            for(int m=0;m<arrayList.get(i).getLineno().size();m++){
-                if(arrayList.get(i).getLineno(m)==targetLine && arrayList.get(i).getColumnno(m)==targetCol){
-                    target = arrayList.get(i);
-                }
-            }
-        }
-
-        if(!symtableListener.fault) {
-            myVisitor visitor = new myVisitor();
-            visitor.target = target;
-            visitor.change = change;
-            visitor.visit(tree);
-        }
+        SymbolTableVisitor symbolTableVisitor = new SymbolTableVisitor();
+        symbolTableVisitor.visit(tree);
+//        ParseTreeWalker walker = new ParseTreeWalker();
+//        SymbolTableListener symtableListener = new SymbolTableListener();
+//        walker.walk(symtableListener, tree);
+//
+//        ArrayList<Symbol> arrayList = symtableListener.getAll();
+//        Symbol target = null;
+//        for(int i=0;i<arrayList.size();i++){
+//            for(int m=0;m<arrayList.get(i).getLineno().size();m++){
+//                if(arrayList.get(i).getLineno(m)==targetLine && arrayList.get(i).getColumnno(m)==targetCol){
+//                    target = arrayList.get(i);
+//                }
+//            }
+//        }
+//
+//        if(!symtableListener.fault) {
+//            myVisitor visitor = new myVisitor();
+//            visitor.target = target;
+//            visitor.change = change;
+//            visitor.visit(tree);
+//        }
 
     }
 

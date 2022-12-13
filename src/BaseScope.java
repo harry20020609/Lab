@@ -6,8 +6,6 @@ public class BaseScope implements Scope{
     private final Map<String, Symbol> symbols = new LinkedHashMap<>();
     private String name;
 
-    public SymbolTableListener listener;
-
     @Override
     public void setListener(SymbolTableListener listener) {
         this.listener = listener;
@@ -41,29 +39,31 @@ public class BaseScope implements Scope{
 
     public boolean dirty = false;
 
+    public SymbolTableListener listener;
+
     public boolean checkDirty(){
         return dirty;
     }
 
     public void define(Symbol symbol) {
-        if(symbols.containsKey(symbol.getName())){
-            if(symbol instanceof FunctionSymbol){
-                FunctionSymbol fs = (FunctionSymbol) symbol;
-                fs.errOutput();
-                listener.fault = true;
-                dirty = true;
-                return;
-            }
-            else{
-                symbol.errOutput();
-                listener.fault = true;
-                dirty = true;
-                return;
-            }
-        }
-        dirty = false;
+//        if(symbols.containsKey(symbol.getName())){
+//            if(symbol instanceof FunctionSymbol){
+//                FunctionSymbol fs = (FunctionSymbol) symbol;
+//                fs.errOutput();
+//                listener.fault = true;
+//                dirty = true;
+//                return;
+//            }
+//            else{
+//                symbol.errOutput();
+//                listener.fault = true;
+//                dirty = true;
+//                return;
+//            }
+//        }
+//        dirty = false;
         symbols.put(symbol.getName(), symbol);
-        System.out.println("+" + symbol.getName());
+//        System.out.println("+" + symbol.getName());
     }
 
     public void checkVariable(String name, int lineno){
@@ -71,6 +71,7 @@ public class BaseScope implements Scope{
             if(enclosingScope==null){
                 System.err.println("Error type 1 at Line "+lineno+": Undefined variable: "+name+".");
                 listener.fault = true;
+                listener.redefine = true;
                 return ;
             }
             enclosingScope.checkVariable(name,lineno);
@@ -82,6 +83,7 @@ public class BaseScope implements Scope{
             if(enclosingScope==null){
                 System.err.println("Error type 2 at Line "+lineno+": Undefined function: "+name+".");
                 listener.fault = true;
+                listener.redefine = true;
                 return ;
             }
             enclosingScope.checkFunction(name,lineno);
@@ -95,7 +97,7 @@ public class BaseScope implements Scope{
     public Symbol resolve(String name) {
         Symbol symbol = symbols.get(name);
         if (symbol != null) {
-            System.out.println("*" + name);
+//            System.out.println("*" + name);
             return symbol;
         }
         if (enclosingScope != null) {
