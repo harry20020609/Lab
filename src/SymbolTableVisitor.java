@@ -478,7 +478,14 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
     @Override
     public Symbol visitFuncRParams(SysYParser.FuncRParamsContext ctx) {
         FunctionSymbol functionSymbol = (FunctionSymbol) this.function;
-        for(int i=0;i<ctx.param().size();i++){
+        int count = 0;
+        if(ctx.param()==null){
+            count = 0;
+        }
+        else{
+            count = ctx.param().size();
+        }
+        for(int i=0;i<count;i++){
             Symbol symbol = visitParam(ctx.param(i));
             if(symbol == null){
                 return null;
