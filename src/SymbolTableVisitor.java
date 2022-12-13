@@ -259,8 +259,11 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             }
             else{
                 if(expSymbol instanceof FunctionSymbol){
-                    System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");
-                    return null;
+                    FunctionType functionType = (FunctionType) expSymbol.getType();
+                    if(!functionType.getRetType().toString().equals("int")){
+                        System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");
+                        return null;
+                    }
                 }
             }
             return null;
