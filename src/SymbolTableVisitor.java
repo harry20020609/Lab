@@ -335,6 +335,9 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         else if(ctx.exp(0) instanceof SysYParser.NumberExpContext){
             num1 = true;
         }
+        else if(ctx.exp(0) instanceof SysYParser.PlusExpContext){
+            exp1 = visitPlusExp((SysYParser.PlusExpContext) ctx.exp(0));
+        }
         Symbol exp2 = null;
         boolean num2 = false;
         if(ctx.exp(1) instanceof SysYParser.LvalExpContext){
@@ -366,7 +369,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         }
         else if(exp1.getType() instanceof ArrayType){
             ArrayType arrayType = (ArrayType) exp1.getType();
-            if(arrayType.getDimension()-arrayType.getAccessDim()!=0){
+            if(arrayType.getAccessDim()!=0){
                 exp1Type = "intint";
             }
         }
@@ -380,7 +383,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         }
         else if(exp2.getType() instanceof ArrayType){
             ArrayType arrayType = (ArrayType) exp2.getType();
-            if(arrayType.getDimension()-arrayType.getAccessDim()!=0){
+            if(arrayType.getAccessDim()!=0){
                 exp2Type = "intint";
             }
         }

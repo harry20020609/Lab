@@ -1,10 +1,7 @@
-int a() {
-    return 10;
-}
-
-int main() {
-    int a = 3;
-    int b = 4;
-    a = 5;
-    return a;
+int main(){
+    int array[3] = {0,1,2};
+    int b;
+    int a = 4;
+    b = array[0] + a + array[1] + array[2] +5;
+    return 1;
 }
