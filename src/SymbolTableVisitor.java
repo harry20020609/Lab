@@ -451,6 +451,11 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         if(symbol.getType() instanceof ArrayType){
             ArrayType arrayType = (ArrayType) symbol.getType();
             arrayType.setAccessDim(arrayType.getDimension()-ctx.L_BRACKT().size());
+            if(arrayType.getAccessDim()<0){
+                System.err.println("Error type 9 at Line "+ctx.start.getLine()+": Not an array: "+name+".");
+                this.fault = true;
+                return null;
+            }
         }
         else{
             if(ctx.L_BRACKT().size()!=0){
