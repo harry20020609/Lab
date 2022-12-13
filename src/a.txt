@@ -1,7 +1,14 @@
+int a(){
+    return 1;
+}
+
+int c(){
+    return 3;
+}
+
 int main(){
     int array[3] = {0,1,2};
     int b;
-    int a = 4;
-    b = array[0] + a + array[1] + array[2] +5;
+    b = array[0] + a() + array[1] +array[2] + c() +5;
     return 1;
 }

@@ -439,7 +439,13 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         }
         functionSymbol.addLineno(ctx.start.getLine());
         functionSymbol.addColumnno(ctx.start.getCharPositionInLine());
-        return functionSymbol;
+        FunctionType functionType = (FunctionType) functionSymbol.getType();
+        if(functionType.getRetType().toString().equals("int")){
+            return new BasicTypeSymbol("int");
+        }
+        else{
+            return functionSymbol;
+        }
     }
 
     @Override
