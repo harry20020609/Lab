@@ -90,10 +90,6 @@ public class BaseScope implements Scope{
         }
     }
 
-    public void setArray(String name){
-        Symbol symbol = symbols.get(name);
-    }
-
     public Symbol resolve(String name) {
         Symbol symbol = symbols.get(name);
         if (symbol != null) {

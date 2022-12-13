@@ -272,6 +272,11 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             Symbol expSymbol = null;
             if(ctx.exp() instanceof SysYParser.LvalExpContext){
                 expSymbol = visitLvalExp((SysYParser.LvalExpContext) ctx.exp());
+                if(expSymbol instanceof FunctionSymbol){
+                    System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");
+                    this.fault = true;
+                    return null;
+                }
             }
             else if (ctx.exp() instanceof SysYParser.CallFuncExpContext){
                 expSymbol = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp());
