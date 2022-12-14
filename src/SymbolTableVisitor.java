@@ -194,17 +194,17 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         }
     }
 
-    @Override
-    public Symbol visitBlock(SysYParser.BlockContext ctx) {
-        LocalScope localScope = new LocalScope(currentScope);
-        String localScopeName = localScope.getName() + localScopeCounter;
-        localScope.setName(localScopeName);
-        localScopeCounter++;
-        currentScope = localScope;
-        super.visitBlock(ctx);
-        currentScope = currentScope.getEnclosingScope();
-        return null;
-    }
+//    @Override
+//    public Symbol visitBlock(SysYParser.BlockContext ctx) {
+//        LocalScope localScope = new LocalScope(currentScope);
+//        String localScopeName = localScope.getName() + localScopeCounter;
+//        localScope.setName(localScopeName);
+//        localScopeCounter++;
+//        currentScope = localScope;
+//        super.visitBlock(ctx);
+//        currentScope = currentScope.getEnclosingScope();
+//        return null;
+//    }
 
     @Override
     public Symbol visitStmt(SysYParser.StmtContext ctx) {
@@ -292,7 +292,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             if(expSymbol==null){
                 return null;
             }
-            FunctionSymbol functionSymbol = (FunctionSymbol) currentScope.getEnclosingScope();
+            FunctionSymbol functionSymbol = (FunctionSymbol) currentScope;
             if(functionSymbol.getType().getRetType().toString().equals("void")){
                 if(expSymbol instanceof BasicTypeSymbol){
                     System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");
