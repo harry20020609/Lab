@@ -201,7 +201,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             arrayType.setDimension(1);
             VariableSymbol variableSymbol = new VariableSymbol(varName,arrayType);
             variableSymbol.addLineno(ctx.start.getLine());
-            variableSymbol.addColumnno(ctx.IDENT().getSymbol().getCharPositionInLine()+4);
+            variableSymbol.addColumnno(ctx.IDENT().getSymbol().getCharPositionInLine());
             return variableSymbol;
         }
         else{
@@ -213,7 +213,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             }
             VariableSymbol variableSymbol = new VariableSymbol(varName,type);
             variableSymbol.addLineno(ctx.start.getLine());
-            variableSymbol.addColumnno(ctx.IDENT().getSymbol().getCharPositionInLine()+4);
+            variableSymbol.addColumnno(ctx.IDENT().getSymbol().getCharPositionInLine());
             return variableSymbol;
         }
     }
