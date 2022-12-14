@@ -70,6 +70,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             }
             Type type = (Type) globalScope.resolve("int");
             VariableSymbol variableSymbol = new VariableSymbol(varName,type);
+            super.visitConstDef(ctx);
             return variableSymbol;
         }
     }
@@ -108,6 +109,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             ArrayType arrayType = new ArrayType(type);
             arrayType.setDimension(ctx.L_BRACKT().size());
             VariableSymbol variableSymbol = new VariableSymbol(varName,arrayType);
+            super.visitVarDef(ctx);
             return variableSymbol;
         }
         else{
