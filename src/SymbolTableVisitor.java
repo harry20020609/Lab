@@ -304,11 +304,24 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
                     this.fault = true;
                     return null;
                 }
+                if(expSymbol.getType() instanceof ArrayType){
+                    System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");
+                    this.fault = true;
+                    return null;
+                }
             }
             else{
                 if(expSymbol instanceof FunctionSymbol){
                     FunctionType functionType = (FunctionType) expSymbol.getType();
                     if(!functionType.getRetType().toString().equals("int")){
+                        System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");
+                        this.fault = true;
+                        return null;
+                    }
+                }
+                if(expSymbol.getType() instanceof ArrayType){
+                    ArrayType arrayType = (ArrayType) expSymbol.getType();
+                    if(arrayType.getAccessDim()!=0){
                         System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");
                         this.fault = true;
                         return null;
@@ -520,5 +533,343 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             }
         }
         return null;
+    }
+
+    @Override
+    public Symbol visitExpCond(SysYParser.ExpCondContext ctx) {
+        Symbol exp1 = null;
+        boolean num1 = false;
+        if(ctx.exp() instanceof SysYParser.LvalExpContext){
+            exp1 = visitLvalExp((SysYParser.LvalExpContext) ctx.exp());
+        }
+        else if(ctx.exp() instanceof SysYParser.CallFuncExpContext){
+            exp1 = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp());
+        }
+        else if(ctx.exp() instanceof SysYParser.NumberExpContext){
+            num1 = true;
+        }
+        else if(ctx.exp() instanceof SysYParser.PlusExpContext){
+            exp1 = visitPlusExp((SysYParser.PlusExpContext) ctx.exp());
+        }
+//        if((exp1 instanceof FunctionSymbol)){
+//            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+//            this.fault = true;
+//            return null;
+//        }
+//        if((exp1 == null && num1==false)){
+//            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+//            this.fault = true;
+//            return null;
+//        }
+        super.visitExpCond(ctx);
+        return exp1;
+    }
+
+    @Override
+    public Symbol visitOrCond(SysYParser.OrCondContext ctx) {
+        Symbol exp1 = null;
+        boolean num1 = false;
+        if(ctx.cond(0) instanceof SysYParser.ExpCondContext){
+            exp1 = visitExpCond((SysYParser.ExpCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.LtCondContext){
+            exp1 = visitLtCond((SysYParser.LtCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.EqCondContext){
+            exp1 = visitEqCond((SysYParser.EqCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.AndCondContext){
+            exp1 = visitAndCond((SysYParser.AndCondContext) ctx.cond(0));
+        }
+        Symbol exp2 = null;
+        boolean num2 = false;
+        if(ctx.cond(1) instanceof SysYParser.ExpCondContext){
+            exp2 = visitExpCond((SysYParser.ExpCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.LtCondContext){
+            exp2 = visitLtCond((SysYParser.LtCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.EqCondContext){
+            exp2 = visitEqCond((SysYParser.EqCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.AndCondContext){
+            exp2 = visitAndCond((SysYParser.AndCondContext) ctx.cond(1));
+        }
+        if((exp1 instanceof FunctionSymbol) || (exp2 instanceof FunctionSymbol)){
+            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+            this.fault = true;
+            return null;
+        }
+        if((exp1 == null && num1==false) || (exp2==null && num2==false)){
+            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+            this.fault = true;
+            return null;
+        }
+        String exp1Type = "int";
+        if(num1){
+            //blank
+        }
+        else if(exp1.getType() instanceof FunctionType){
+            FunctionType functionType = (FunctionType) exp1.getType();
+            exp1Type = functionType.getRetType().toString();
+        }
+        else if(exp1.getType() instanceof ArrayType){
+            ArrayType arrayType = (ArrayType) exp1.getType();
+            if(arrayType.getAccessDim()!=0){
+                exp1Type = "intint";
+            }
+        }
+        String exp2Type = "int";
+        if(num2){
+            //blank
+        }
+        else if(exp2.getType() instanceof FunctionType){
+            FunctionType functionType = (FunctionType) exp2.getType();
+            exp1Type = functionType.getRetType().toString();
+        }
+        else if(exp2.getType() instanceof ArrayType){
+            ArrayType arrayType = (ArrayType) exp2.getType();
+            if(arrayType.getAccessDim()!=0){
+                exp2Type = "intint";
+            }
+        }
+        if(!exp1Type.equals("int") || !exp2Type.equals("int")){
+            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+            this.fault = true;
+            return null;
+        }
+        super.visitOrCond(ctx);
+        return exp1;
+    }
+
+    @Override
+    public Symbol visitLtCond(SysYParser.LtCondContext ctx) {
+        Symbol exp1 = null;
+        boolean num1 = false;
+        if(ctx.cond(0) instanceof SysYParser.ExpCondContext){
+            exp1 = visitExpCond((SysYParser.ExpCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.LtCondContext){
+            exp1 = visitLtCond((SysYParser.LtCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.EqCondContext){
+            exp1 = visitEqCond((SysYParser.EqCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.AndCondContext){
+            exp1 = visitAndCond((SysYParser.AndCondContext) ctx.cond(0));
+        }
+        Symbol exp2 = null;
+        boolean num2 = false;
+        if(ctx.cond(1) instanceof SysYParser.ExpCondContext){
+            exp2 = visitExpCond((SysYParser.ExpCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.LtCondContext){
+            exp2 = visitLtCond((SysYParser.LtCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.EqCondContext){
+            exp2 = visitEqCond((SysYParser.EqCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.AndCondContext){
+            exp2 = visitAndCond((SysYParser.AndCondContext) ctx.cond(1));
+        }
+        if((exp1 instanceof FunctionSymbol) || (exp2 instanceof FunctionSymbol)){
+            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+            this.fault = true;
+            return null;
+        }
+        if((exp1 == null && num1==false) || (exp2==null && num2==false)){
+            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+            this.fault = true;
+            return null;
+        }
+        String exp1Type = "int";
+        if(num1){
+            //blank
+        }
+        else if(exp1.getType() instanceof FunctionType){
+            FunctionType functionType = (FunctionType) exp1.getType();
+            exp1Type = functionType.getRetType().toString();
+        }
+        else if(exp1.getType() instanceof ArrayType){
+            ArrayType arrayType = (ArrayType) exp1.getType();
+            if(arrayType.getAccessDim()!=0){
+                exp1Type = "intint";
+            }
+        }
+        String exp2Type = "int";
+        if(num2){
+            //blank
+        }
+        else if(exp2.getType() instanceof FunctionType){
+            FunctionType functionType = (FunctionType) exp2.getType();
+            exp1Type = functionType.getRetType().toString();
+        }
+        else if(exp2.getType() instanceof ArrayType){
+            ArrayType arrayType = (ArrayType) exp2.getType();
+            if(arrayType.getAccessDim()!=0){
+                exp2Type = "intint";
+            }
+        }
+        if(!exp1Type.equals("int") || !exp2Type.equals("int")){
+            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+            this.fault = true;
+            return null;
+        }
+        super.visitLtCond(ctx);
+        return exp1;
+    }
+
+    @Override
+    public Symbol visitEqCond(SysYParser.EqCondContext ctx) {
+        Symbol exp1 = null;
+        boolean num1 = false;
+        if(ctx.cond(0) instanceof SysYParser.ExpCondContext){
+            exp1 = visitExpCond((SysYParser.ExpCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.LtCondContext){
+            exp1 = visitLtCond((SysYParser.LtCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.EqCondContext){
+            exp1 = visitEqCond((SysYParser.EqCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.AndCondContext){
+            exp1 = visitAndCond((SysYParser.AndCondContext) ctx.cond(0));
+        }
+        Symbol exp2 = null;
+        boolean num2 = false;
+        if(ctx.cond(1) instanceof SysYParser.ExpCondContext){
+            exp2 = visitExpCond((SysYParser.ExpCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.LtCondContext){
+            exp2 = visitLtCond((SysYParser.LtCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.EqCondContext){
+            exp2 = visitEqCond((SysYParser.EqCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.AndCondContext){
+            exp2 = visitAndCond((SysYParser.AndCondContext) ctx.cond(1));
+        }
+        if((exp1 instanceof FunctionSymbol) || (exp2 instanceof FunctionSymbol)){
+            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+            this.fault = true;
+            return null;
+        }
+        if((exp1 == null && num1==false) || (exp2==null && num2==false)){
+            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+            this.fault = true;
+            return null;
+        }
+        String exp1Type = "int";
+        if(num1){
+            //blank
+        }
+        else if(exp1.getType() instanceof FunctionType){
+            FunctionType functionType = (FunctionType) exp1.getType();
+            exp1Type = functionType.getRetType().toString();
+        }
+        else if(exp1.getType() instanceof ArrayType){
+            ArrayType arrayType = (ArrayType) exp1.getType();
+            if(arrayType.getAccessDim()!=0){
+                exp1Type = "intint";
+            }
+        }
+        String exp2Type = "int";
+        if(num2){
+            //blank
+        }
+        else if(exp2.getType() instanceof FunctionType){
+            FunctionType functionType = (FunctionType) exp2.getType();
+            exp1Type = functionType.getRetType().toString();
+        }
+        else if(exp2.getType() instanceof ArrayType){
+            ArrayType arrayType = (ArrayType) exp2.getType();
+            if(arrayType.getAccessDim()!=0){
+                exp2Type = "intint";
+            }
+        }
+        if(!exp1Type.equals("int") || !exp2Type.equals("int")){
+            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+            this.fault = true;
+            return null;
+        }
+        super.visitEqCond(ctx);
+        return exp1;
+    }
+
+    @Override
+    public Symbol visitAndCond(SysYParser.AndCondContext ctx) {
+        Symbol exp1 = null;
+        boolean num1 = false;
+        if(ctx.cond(0) instanceof SysYParser.ExpCondContext){
+            exp1 = visitExpCond((SysYParser.ExpCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.LtCondContext){
+            exp1 = visitLtCond((SysYParser.LtCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.EqCondContext){
+            exp1 = visitEqCond((SysYParser.EqCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.AndCondContext){
+            exp1 = visitAndCond((SysYParser.AndCondContext) ctx.cond(0));
+        }
+        Symbol exp2 = null;
+        boolean num2 = false;
+        if(ctx.cond(1) instanceof SysYParser.ExpCondContext){
+            exp2 = visitExpCond((SysYParser.ExpCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.LtCondContext){
+            exp2 = visitLtCond((SysYParser.LtCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.EqCondContext){
+            exp2 = visitEqCond((SysYParser.EqCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.AndCondContext){
+            exp2 = visitAndCond((SysYParser.AndCondContext) ctx.cond(1));
+        }
+        if((exp1 instanceof FunctionSymbol) || (exp2 instanceof FunctionSymbol)){
+            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+            this.fault = true;
+            return null;
+        }
+        if((exp1 == null && num1==false) || (exp2==null && num2==false)){
+            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+            this.fault = true;
+            return null;
+        }
+        String exp1Type = "int";
+        if(num1){
+            //blank
+        }
+        else if(exp1.getType() instanceof FunctionType){
+            FunctionType functionType = (FunctionType) exp1.getType();
+            exp1Type = functionType.getRetType().toString();
+        }
+        else if(exp1.getType() instanceof ArrayType){
+            ArrayType arrayType = (ArrayType) exp1.getType();
+            if(arrayType.getAccessDim()!=0){
+                exp1Type = "intint";
+            }
+        }
+        String exp2Type = "int";
+        if(num2){
+            //blank
+        }
+        else if(exp2.getType() instanceof FunctionType){
+            FunctionType functionType = (FunctionType) exp2.getType();
+            exp1Type = functionType.getRetType().toString();
+        }
+        else if(exp2.getType() instanceof ArrayType){
+            ArrayType arrayType = (ArrayType) exp2.getType();
+            if(arrayType.getAccessDim()!=0){
+                exp2Type = "intint";
+            }
+        }
+        if(!exp1Type.equals("int") || !exp2Type.equals("int")){
+            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+            this.fault = true;
+            return null;
+        }
+        super.visitAndCond(ctx);
+        return exp1;
     }
 }
