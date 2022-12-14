@@ -1,13 +1,5 @@
-
-int a;
-int b(int x){
-    x = 2;
-    return x;
-}
+const int a = 1;
 int main() {
-    int array[2][3];
-    int c;
-    int d;
-    array[0][a] =(d + b(c));
-    return 1;
+
+    return a;
 }

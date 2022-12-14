@@ -59,6 +59,8 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             ArrayType arrayType = new ArrayType(type);
             arrayType.setDimension(ctx.L_BRACKT().size());
             VariableSymbol variableSymbol = new VariableSymbol(varName,arrayType);
+            variableSymbol.addLineno(ctx.start.getLine());
+            variableSymbol.addColumnno(ctx.IDENT().getSymbol().getCharPositionInLine());
             super.visitConstDef(ctx);
             return variableSymbol;
         }
@@ -71,6 +73,8 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             }
             Type type = (Type) globalScope.resolve("int");
             VariableSymbol variableSymbol = new VariableSymbol(varName,type);
+            variableSymbol.addLineno(ctx.start.getLine());
+            variableSymbol.addColumnno(ctx.IDENT().getSymbol().getCharPositionInLine());
             super.visitConstDef(ctx);
             return variableSymbol;
         }
@@ -110,6 +114,8 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             ArrayType arrayType = new ArrayType(type);
             arrayType.setDimension(ctx.L_BRACKT().size());
             VariableSymbol variableSymbol = new VariableSymbol(varName,arrayType);
+            variableSymbol.addLineno(ctx.start.getLine());
+            variableSymbol.addColumnno(ctx.IDENT().getSymbol().getCharPositionInLine());
             super.visitVarDef(ctx);
             return variableSymbol;
         }
@@ -122,6 +128,8 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             }
             Type type = (Type) globalScope.resolve("int");
             VariableSymbol variableSymbol = new VariableSymbol(varName,type);
+            variableSymbol.addLineno(ctx.start.getLine());
+            variableSymbol.addColumnno(ctx.IDENT().getSymbol().getCharPositionInLine());
             super.visitVarDef(ctx);
             return variableSymbol;
         }
