@@ -59,6 +59,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             ArrayType arrayType = new ArrayType(type);
             arrayType.setDimension(ctx.L_BRACKT().size());
             VariableSymbol variableSymbol = new VariableSymbol(varName,arrayType);
+            super.visitConstDef(ctx);
             return variableSymbol;
         }
         else{
