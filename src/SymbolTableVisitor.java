@@ -43,7 +43,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
                 currentScope.define(symbol);
             }
         }
-        return super.visitChildren(ctx);
+        return null;
     }
 
     @Override
@@ -146,6 +146,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             visitFuncFParams(ctx.funcFParams());
         }
         visitBlock(ctx.block());
+        currentScope = currentScope.getEnclosingScope();
         return null;
     }
 
@@ -193,18 +194,6 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             return variableSymbol;
         }
     }
-
-//    @Override
-//    public Symbol visitBlock(SysYParser.BlockContext ctx) {
-//        LocalScope localScope = new LocalScope(currentScope);
-//        String localScopeName = localScope.getName() + localScopeCounter;
-//        localScope.setName(localScopeName);
-//        localScopeCounter++;
-//        currentScope = localScope;
-//        super.visitBlock(ctx);
-//        currentScope = currentScope.getEnclosingScope();
-//        return null;
-//    }
 
     @Override
     public Symbol visitStmt(SysYParser.StmtContext ctx) {
@@ -340,7 +329,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
                     }
                 }
             }
-            currentScope = currentScope.getEnclosingScope();
+
             return null;
         }
         return super.visitStmt(ctx);
