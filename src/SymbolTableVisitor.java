@@ -92,8 +92,6 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
                 return null;
             }
             else{
-                symbol.addLineno(ctx.start.getLine());
-                symbol.addColumnno(ctx.start.getCharPositionInLine()+4);
                 all.add(symbol);
                 currentScope.define(symbol);
             }
