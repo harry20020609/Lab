@@ -201,7 +201,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             arrayType.setDimension(1);
             VariableSymbol variableSymbol = new VariableSymbol(varName,arrayType);
             variableSymbol.addLineno(ctx.start.getLine());
-            variableSymbol.addColumnno(ctx.start.getCharPositionInLine()+4);
+            variableSymbol.addColumnno(ctx.IDENT().getSymbol().getCharPositionInLine()+4);
             return variableSymbol;
         }
         else{
@@ -213,7 +213,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             }
             VariableSymbol variableSymbol = new VariableSymbol(varName,type);
             variableSymbol.addLineno(ctx.start.getLine());
-            variableSymbol.addColumnno(ctx.start.getCharPositionInLine()+4);
+            variableSymbol.addColumnno(ctx.IDENT().getSymbol().getCharPositionInLine()+4);
             return variableSymbol;
         }
     }
@@ -590,7 +590,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             visitFuncRParams(ctx.funcRParams());
         }
         functionSymbol.addLineno(ctx.start.getLine());
-        functionSymbol.addColumnno(ctx.start.getCharPositionInLine());
+        functionSymbol.addColumnno(ctx.IDENT().getSymbol().getCharPositionInLine());
         FunctionType functionType = (FunctionType) functionSymbol.getType();
         if(functionType.getRetType().toString().equals("int")){
             return new BasicTypeSymbol("int");
@@ -626,7 +626,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             }
         }
         symbol.addLineno(ctx.start.getLine());
-        symbol.addColumnno(ctx.start.getCharPositionInLine());
+        symbol.addColumnno(ctx.IDENT().getSymbol().getCharPositionInLine());
         super.visitLVal(ctx);
         return symbol;
     }
