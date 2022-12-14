@@ -100,6 +100,18 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
     }
 
     @Override
+    public Symbol visitBlock(SysYParser.BlockContext ctx) {
+        LocalScope localScope = new LocalScope(currentScope);
+        String localScopeName = localScope.getName() + localScopeCounter;
+        localScope.setName(localScopeName);
+        localScopeCounter++;
+        currentScope = localScope;
+        super.visitBlock(ctx);
+        currentScope = currentScope.getEnclosingScope();
+        return null;
+    }
+
+    @Override
     public Symbol visitVarDef(SysYParser.VarDefContext ctx) {
         if(ctx.L_BRACKT().size()>0){
             String varName = ctx.IDENT().getText();
@@ -302,6 +314,9 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
                 expSymbol = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp());
             }
             if(expSymbol==null){
+                return null;
+            }
+            if(currentScope instanceof LocalScope){
                 return null;
             }
             FunctionSymbol functionSymbol = (FunctionSymbol) currentScope;
