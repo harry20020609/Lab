@@ -1,7 +1,8 @@
 int a(int x[]){
+    x[0] = 1;
     return 1;
 }
 int main() {
-
+    int x;
     return 1;
 }

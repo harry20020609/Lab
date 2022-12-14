@@ -186,6 +186,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
                 return null;
             }
             ArrayType arrayType = new ArrayType(type);
+            arrayType.setDimension(1);
             VariableSymbol variableSymbol = new VariableSymbol(varName,arrayType);
             variableSymbol.addLineno(ctx.start.getLine());
             variableSymbol.addColumnno(ctx.start.getCharPositionInLine()+4);
