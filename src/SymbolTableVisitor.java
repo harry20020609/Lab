@@ -148,7 +148,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         FunctionSymbol functionSymbol = new FunctionSymbol(functionName,currentScope);
         functionSymbol.setType(functionType);
         functionSymbol.addLineno(ctx.start.getLine());
-        functionSymbol.addColumnno(ctx.start.getCharPositionInLine()+ ctx.funcType().getText().length()+1);
+        functionSymbol.addColumnno(ctx.IDENT().getSymbol().getCharPositionInLine());
         all.add(functionSymbol);
         currentScope.define(functionSymbol);
         currentScope = functionSymbol;
@@ -188,7 +188,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             ArrayType arrayType = new ArrayType(type);
             VariableSymbol variableSymbol = new VariableSymbol(varName,arrayType);
             variableSymbol.addLineno(ctx.start.getLine());
-            variableSymbol.addColumnno(ctx.start.getCharPositionInLine());
+            variableSymbol.addColumnno(ctx.start.getCharPositionInLine()+4);
             return variableSymbol;
         }
         else{

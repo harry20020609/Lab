@@ -1,5 +1,7 @@
-const int a = 1;
+int a(int x[]){
+    return 1;
+}
 int main() {
 
-    return a;
+    return 1;
 }
