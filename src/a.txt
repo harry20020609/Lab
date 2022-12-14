@@ -1,11 +1,9 @@
-int b(){
-    return 1;
-}
+
 
 int main(){
     int a = 3;
     int array[3] = {0,1,2};
-    int c = a + b();
+
     if(a == b()){
 
     }

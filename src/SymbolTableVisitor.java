@@ -561,7 +561,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
 //            this.fault = true;
 //            return null;
 //        }
-        super.visitExpCond(ctx);
+//        super.visitExpCond(ctx);
         return exp1;
     }
 
@@ -749,16 +749,17 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         else if(ctx.cond(1) instanceof SysYParser.AndCondContext){
             exp2 = visitAndCond((SysYParser.AndCondContext) ctx.cond(1));
         }
+        if((exp1 == null && num1==false) || (exp2==null && num2==false)){
+//            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+//            this.fault = true;
+            return null;
+        }
         if((exp1 instanceof FunctionSymbol) || (exp2 instanceof FunctionSymbol)){
             System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
             this.fault = true;
             return null;
         }
-        if((exp1 == null && num1==false) || (exp2==null && num2==false)){
-            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
-            this.fault = true;
-            return null;
-        }
+
         String exp1Type = "int";
         if(num1){
             //blank
