@@ -50,7 +50,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
     public Symbol visitConstDef(SysYParser.ConstDefContext ctx) {
         if(ctx.L_BRACKT().size()>0){
             String varName = ctx.IDENT().getText();
-            if(currentScope.resolve(varName)!=null){
+            if(currentScope.getSymbols().containsKey(varName)){
                 System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
                 this.fault = true;
                 return null;
@@ -63,7 +63,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         }
         else{
             String varName = ctx.IDENT().getText();
-            if(currentScope.resolve(varName)!=null){
+            if(currentScope.getSymbols().containsKey(varName)){
                 System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
                 this.fault = true;
                 return null;
@@ -99,7 +99,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
     public Symbol visitVarDef(SysYParser.VarDefContext ctx) {
         if(ctx.L_BRACKT().size()>0){
             String varName = ctx.IDENT().getText();
-            if(currentScope.resolve(varName)!=null){
+            if(currentScope.getSymbols().containsKey(varName)){
                 System.err.println("Error type 3 at Line " +ctx.start.getLine() + ": Redefined variable: " + varName + ".");
                 this.fault = true;
                 return null;
