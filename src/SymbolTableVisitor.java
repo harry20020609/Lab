@@ -316,10 +316,13 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             if(expSymbol==null){
                 return null;
             }
+            FunctionSymbol functionSymbol;
             if(currentScope instanceof LocalScope){
-                return null;
+                functionSymbol = (FunctionSymbol) currentScope.getEnclosingScope();
             }
-            FunctionSymbol functionSymbol = (FunctionSymbol) currentScope;
+            else{
+                functionSymbol = (FunctionSymbol) currentScope;
+            }
             if(functionSymbol.getType().getRetType().toString().equals("void")){
                 if(expSymbol instanceof BasicTypeSymbol){
                     System.err.println("Error type 7 at Line "+ctx.start.getLine()+": type.Type mismatched for return.");
