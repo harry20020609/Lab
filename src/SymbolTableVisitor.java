@@ -229,6 +229,9 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             else if(ctx.exp() instanceof SysYParser.UnaryOpExpContext){
                 expSymbol = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.exp());
             }
+            else if(ctx.exp() instanceof SysYParser.ExpParenthesisContext){
+                expSymbol = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp());
+            }
             if(lvalSymbol==null || expSymbol==null){
                 return null;
             }
@@ -294,6 +297,9 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             }
             else if (ctx.exp() instanceof SysYParser.UnaryOpExpContext){
                 expSymbol = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.exp());
+            }
+            else if(ctx.exp() instanceof SysYParser.ExpParenthesisContext){
+                expSymbol = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp());
             }
             if(expSymbol==null){
                 return null;
@@ -363,6 +369,9 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         else if(ctx.exp(0) instanceof SysYParser.UnaryOpExpContext){
             exp1 = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.exp(0));
         }
+        else if(ctx.exp(0) instanceof SysYParser.ExpParenthesisContext){
+            exp1 = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp(0));
+        }
         Symbol exp2 = null;
         boolean num2 = false;
         if(ctx.exp(1) instanceof SysYParser.LvalExpContext){
@@ -383,14 +392,17 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         else if(ctx.exp(1) instanceof SysYParser.UnaryOpExpContext){
             exp2 = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.exp(1));
         }
+        else if(ctx.exp(1) instanceof SysYParser.ExpParenthesisContext){
+            exp2 = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp(1));
+        }
         if((exp1 instanceof FunctionSymbol) || (exp2 instanceof FunctionSymbol)){
             System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
             this.fault = true;
             return null;
         }
         if((exp1 == null && num1==false) || (exp2==null && num2==false)){
-            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
-            this.fault = true;
+//            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+//            this.fault = true;
             return null;
         }
         String exp1Type = "int";
@@ -432,7 +444,97 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
 
     @Override
     public Symbol visitMulExp(SysYParser.MulExpContext ctx) {
-        return super.visitMulExp(ctx);
+        Symbol exp1 = null;
+        boolean num1 = false;
+        if(ctx.exp(0) instanceof SysYParser.LvalExpContext){
+            exp1 = visitLvalExp((SysYParser.LvalExpContext) ctx.exp(0));
+        }
+        else if(ctx.exp(0) instanceof SysYParser.CallFuncExpContext){
+            exp1 = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp(0));
+        }
+        else if(ctx.exp(0) instanceof SysYParser.NumberExpContext){
+            num1 = true;
+        }
+        else if(ctx.exp(0) instanceof SysYParser.PlusExpContext){
+            exp1 = visitPlusExp((SysYParser.PlusExpContext) ctx.exp(0));
+        }
+        else if(ctx.exp(0) instanceof SysYParser.MulExpContext){
+            exp1 = visitMulExp((SysYParser.MulExpContext) ctx.exp(0));
+        }
+        else if(ctx.exp(0) instanceof SysYParser.UnaryOpExpContext){
+            exp1 = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.exp(0));
+        }
+        else if(ctx.exp(0) instanceof SysYParser.ExpParenthesisContext){
+            exp1 = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp(0));
+        }
+        Symbol exp2 = null;
+        boolean num2 = false;
+        if(ctx.exp(1) instanceof SysYParser.LvalExpContext){
+            exp2 = visitLvalExp((SysYParser.LvalExpContext) ctx.exp(1));
+        }
+        else if(ctx.exp(1) instanceof SysYParser.CallFuncExpContext){
+            exp2 = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp(1));
+        }
+        else if(ctx.exp(1) instanceof SysYParser.NumberExpContext){
+            num2 = true;
+        }
+        else if(ctx.exp(1) instanceof SysYParser.PlusExpContext){
+            exp2 = visitPlusExp((SysYParser.PlusExpContext) ctx.exp(1));
+        }
+        else if(ctx.exp(1) instanceof SysYParser.MulExpContext){
+            exp2 = visitMulExp((SysYParser.MulExpContext) ctx.exp(1));
+        }
+        else if(ctx.exp(1) instanceof SysYParser.UnaryOpExpContext){
+            exp2 = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.exp(1));
+        }
+        else if(ctx.exp(1) instanceof SysYParser.ExpParenthesisContext){
+            exp2 = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp(1));
+        }
+        if((exp1 instanceof FunctionSymbol) || (exp2 instanceof FunctionSymbol)){
+            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+            this.fault = true;
+            return null;
+        }
+        if((exp1 == null && num1==false) || (exp2==null && num2==false)){
+//            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+//            this.fault = true;
+            return null;
+        }
+        String exp1Type = "int";
+        if(num1){
+            //blank
+        }
+        else if(exp1.getType() instanceof FunctionType){
+            FunctionType functionType = (FunctionType) exp1.getType();
+            exp1Type = functionType.getRetType().toString();
+        }
+        else if(exp1.getType() instanceof ArrayType){
+            ArrayType arrayType = (ArrayType) exp1.getType();
+            if(arrayType.getAccessDim()!=0){
+                exp1Type = "intint";
+            }
+        }
+        String exp2Type = "int";
+        if(num2){
+            //blank
+        }
+        else if(exp2.getType() instanceof FunctionType){
+            FunctionType functionType = (FunctionType) exp2.getType();
+            exp1Type = functionType.getRetType().toString();
+        }
+        else if(exp2.getType() instanceof ArrayType){
+            ArrayType arrayType = (ArrayType) exp2.getType();
+            if(arrayType.getAccessDim()!=0){
+                exp2Type = "intint";
+            }
+        }
+        if(!exp1Type.equals("int") || !exp2Type.equals("int")){
+            System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");
+            this.fault = true;
+            return null;
+        }
+        super.visitMulExp(ctx);
+        return new BasicTypeSymbol("int");
     }
 
     @Override
@@ -577,6 +679,9 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         }
         else if(ctx.exp() instanceof SysYParser.MulExpContext){
             exp1 = visitMulExp((SysYParser.MulExpContext) ctx.exp());
+        }
+        else if(ctx.exp() instanceof SysYParser.ExpParenthesisContext){
+            exp1 = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp());
         }
         if((exp1 instanceof FunctionSymbol)){
             System.err.println("Error type 6 at Line "+ctx.start.getLine()+": type.Type mismatched for operands.");

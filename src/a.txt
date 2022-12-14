@@ -2,6 +2,6 @@
 
 int main(){
     int a = 3;
-    a = -b;
+    a = b*8;
     return a;
 }
