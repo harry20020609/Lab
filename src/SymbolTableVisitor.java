@@ -221,10 +221,12 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
     @Override
     public Symbol visitStmt(SysYParser.StmtContext ctx) {
         if(ctx.ASSIGN()!=null){
+            boolean lval = false;
             Symbol lvalSymbol = visitLVal(ctx.lVal());
             Symbol expSymbol = null;
             if(ctx.exp() instanceof SysYParser.LvalExpContext){
                 expSymbol = visitLvalExp((SysYParser.LvalExpContext) ctx.exp());
+                lval = true;
             }
             else if (ctx.exp() instanceof SysYParser.CallFuncExpContext){
                 expSymbol = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp());
@@ -254,6 +256,11 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             }
             String lvalType = lvalSymbol.getType().toString();
             String expType;
+            if(lval && expSymbol instanceof FunctionSymbol){
+                System.err.println("Error type 5 at Line "+ctx.start.getLine()+": type.Type mismatched for assignment.");
+                this.fault = true;
+                return null;
+            }
             if(expSymbol instanceof BasicTypeSymbol){
                 expType = "int";
             }
