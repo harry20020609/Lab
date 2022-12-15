@@ -366,6 +366,9 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             }
             return null;
         }
+        else{
+            super.visitStmt(ctx);
+        }
         return null;
     }
 
