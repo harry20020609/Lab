@@ -89,7 +89,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
         for(int i=0;i<ctx.varDef().size();i++){
             Symbol symbol = visitVarDef(ctx.varDef(i));
             if(symbol==null){
-                return null;
+                continue;
             }
             else{
                 all.add(symbol);
@@ -657,11 +657,22 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
                 return null;
             }
             if(symbol.getType() instanceof ArrayType){
-                if(!(functionSymbol.getType().getParamsType().get(i) instanceof ArrayType)){
-                    System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
-                    this.fault = true;
-                    return null;
+                ArrayType arrayType = (ArrayType) symbol.getType();
+                if(functionSymbol.getType().getParamsType().get(i) instanceof ArrayType){
+                    if(arrayType.getAccessDim()==0) {
+                        System.err.println("Error type 8 at Line " + ctx.start.getLine() + ": Function is not applicable for arguments.");
+                        this.fault = true;
+                        return null;
+                    }
                 }
+                else{
+                    if(arrayType.getAccessDim()!=0){
+                        System.err.println("Error type 8 at Line " + ctx.start.getLine() + ": Function is not applicable for arguments.");
+                        this.fault = true;
+                        return null;
+                    }
+                }
+
             }
             else{
                 if(!(functionSymbol.getType().getParamsType().get(i).toString().equals("int"))){
