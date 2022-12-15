@@ -1,7 +1,10 @@
 int f(){
     return 1;
 }
+int a(int i){
+
+}
 int main(){
-    int t1;
-    t1 = f;
+    int b;
+    b = a(f);
 }

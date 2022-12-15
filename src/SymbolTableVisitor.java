@@ -366,7 +366,7 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
             }
             return null;
         }
-        return super.visitStmt(ctx);
+        return null;
     }
 
 
@@ -681,6 +681,11 @@ public class SymbolTableVisitor extends SysYParserBaseVisitor<Symbol> {
                 }
             }
             else{
+                if((symbol instanceof FunctionSymbol) &&(ctx.param(i).exp() instanceof SysYParser.LvalExpContext)){
+                    System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
+                    this.fault = true;
+                    return null;
+                }
                 if(!(functionSymbol.getType().getParamsType().get(i).toString().equals("int"))){
                     System.err.println("Error type 8 at Line "+ctx.start.getLine()+": Function is not applicable for arguments.");
                     this.fault = true;
