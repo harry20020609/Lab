@@ -46,24 +46,7 @@ public class BaseScope implements Scope{
     }
 
     public void define(Symbol symbol) {
-//        if(symbols.containsKey(symbol.getName())){
-//            if(symbol instanceof FunctionSymbol){
-//                FunctionSymbol fs = (FunctionSymbol) symbol;
-//                fs.errOutput();
-//                listener.fault = true;
-//                dirty = true;
-//                return;
-//            }
-//            else{
-//                symbol.errOutput();
-//                listener.fault = true;
-//                dirty = true;
-//                return;
-//            }
-//        }
-//        dirty = false;
         symbols.put(symbol.getName(), symbol);
-//        System.out.println("+" + symbol.getName());
     }
 
     public void checkVariable(String name, int lineno){
@@ -93,13 +76,11 @@ public class BaseScope implements Scope{
     public Symbol resolve(String name) {
         Symbol symbol = symbols.get(name);
         if (symbol != null) {
-//            System.out.println("*" + name);
             return symbol;
         }
         if (enclosingScope != null) {
             return enclosingScope.resolve(name);
         }
-//        System.err.println("Cannot find " + name);
         return null;
     }
 

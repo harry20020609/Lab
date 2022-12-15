@@ -21,8 +21,8 @@ public class Main
         CommonTokenStream tokens = new CommonTokenStream(sysYLexer);
         SysYParser sysYParser = new SysYParser(tokens);
         sysYParser.removeErrorListeners();
-        myErrorListener errorListener = new myErrorListener();
-        sysYParser.addErrorListener(errorListener);
+//        myErrorListener errorListener = new myErrorListener();
+//        sysYParser.addErrorListener(errorListener);
 
         ParseTree tree = sysYParser.program();
         SymbolTableVisitor symbolTableVisitor = new SymbolTableVisitor();
