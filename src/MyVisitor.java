@@ -178,7 +178,14 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             }
         }
         else{
-            val = symbol + val;
+            if(!symbol.equals("+")){
+                if(val.startsWith("-")){
+                    val = val.substring(1);
+                }
+                else{
+                    val = symbol + val;
+                }
+            }
         }
         LLVMValueRef res = LLVMConstInt(i32Type,Long.valueOf(val),0);
         return res;
@@ -191,7 +198,16 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
 
     @Override
     public LLVMValueRef visitNumber(SysYParser.NumberContext ctx) {
-        LLVMValueRef llvmValueRef = LLVMConstInt(i32Type, Long.parseLong(ctx.getText()), /* signExtend */ 0);
+        String value = ctx.getText();
+        if(value.startsWith("0x")||value.startsWith("0X")){
+            String temp = value.substring(2);
+            value = String.valueOf(Integer.parseInt(temp,16));
+        }
+        else if(value.startsWith("0") && value.length()>1){
+            String temp = value.substring(1);
+            value = String.valueOf(Integer.parseInt(temp,8));
+        }
+        LLVMValueRef llvmValueRef = LLVMConstInt(i32Type, Long.parseLong(value), /* signExtend */ 0);
         return llvmValueRef;
     }
 }

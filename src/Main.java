@@ -1,11 +1,9 @@
-
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.bytedeco.llvm.LLVM.*;
 import org.bytedeco.javacpp.*;
 import static org.bytedeco.llvm.global.LLVM.*;
 import java.io.*;
-
 
 public class Main
 {
@@ -34,8 +32,5 @@ public class Main
         if (LLVMPrintModuleToFile(module, args[1], error) != 0) {    // module是你自定义的LLVMModuleRef对象
             LLVMDisposeMessage(error);
         }
-
     }
-
-
 }
