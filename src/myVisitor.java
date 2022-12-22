@@ -1,72 +1,75 @@
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.llvm.LLVM.*;
+import static org.bytedeco.llvm.global.LLVM.*;
 
-public class myVisitor extends SysYParserBaseVisitor<Void> {
-    public String[] colors = {"CONST[orange]","INT[orange]","VOID[orange]","IF[orange]","ELSE[orange]","WHILE[orange]","BREAK[orange]","CONTINUE[orange]","RETURN[orange]",
-            "PLUS[blue]","MINUS[blue]","MUL[blue]","DIV[blue]","MOD[blue]","ASSIGN[blue]","EQ[blue]","NEQ[blue]","LT[blue]","GT[blue]","LE[blue]","GE[blue]",
-            "NOT[blue]","AND[blue]","OR[blue]","L_PAREN=25","R_PAREN=26","L_BRACE=27","R_BRACE=28","L_BRACKT=29","R_BRACKT=30",
-            "COMMA=31","SEMICOLON=32", "IDENT[red]","INTEGR_CONST[green]","WS=35","LINE_COMMENT=36","MULTILINE_COMMENT=37"};
 
-    public String[] ruleNames ={
-            "program", "compUnit", "decl", "constDecl", "bType", "constDef", "constInitVal",
-            "varDecl", "varDef", "initVal", "funcDef", "funcType", "funcFParams",
-            "funcFParam", "block", "blockItem", "stmt", "exp", "cond", "lVal", "number",
-            "unaryOp", "funcRParams", "param", "constExp"
-    };
 
-    public Symbol target;
-
-    public String change;
-
-    int spaceCount = 0;
+public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
+    public static final BytePointer error = new BytePointer();
     @Override
-    public Void visitChildren(RuleNode node) {
-        String space = "";
-        for(int i=0;i<spaceCount;i++){
-            space = space + "  ";
-        }
-        String res = ruleNames[node.getRuleContext().getRuleIndex()];
-        System.err.println(space + res.substring(0,1).toUpperCase()+res.substring(1));
-        spaceCount++;
-        Void result = this.defaultResult();
-        int n = node.getChildCount();
-        for(int i = 0; i < n && this.shouldVisitNextChild(node, result); ++i) {
-            ParseTree c = node.getChild(i);
-            Void childResult = c.accept(this);
-            result = this.aggregateResult(result, childResult);
-        }
-        spaceCount--;
-        return result;
+    public LLVMValueRef visitProgram(SysYParser.ProgramContext ctx) {
+        //初始化LLVM
+        LLVMInitializeCore(LLVMGetGlobalPassRegistry());
+        LLVMLinkInMCJIT();
+        LLVMInitializeNativeAsmPrinter();
+        LLVMInitializeNativeAsmParser();
+        LLVMInitializeNativeTarget();
+        //创建module
+        LLVMModuleRef module = LLVMModuleCreateWithName("moudle");
+        //初始化IRBuilder，后续将使用这个builder去生成LLVM IR
+        LLVMBuilderRef builder = LLVMCreateBuilder();
+        //考虑到我们的语言中仅存在int一个基本类型，可以通过下面的语句为LLVM的int型重命名方便以后使用
+        LLVMTypeRef i32Type = LLVMInt32Type();
+        super.visitProgram(ctx);
+        LLVMPrintModuleToFile(module,"test.ll",error);
+        return null;
     }
 
     @Override
-    public Void visitTerminal(TerminalNode node) {
-        String space = "";
-        for(int i=0;i<spaceCount;i++){
-            space = space + "  ";
+    public LLVMValueRef visitStmt(SysYParser.StmtContext ctx) {
+        return super.visitStmt(ctx);
+    }
+
+    @Override
+    public LLVMValueRef visitMulExp(SysYParser.MulExpContext ctx) {
+        LLVMValueRef llvmValueRef1 = null;
+        if(ctx.exp(0) instanceof SysYParser.MulExpContext){
+            llvmValueRef1 = visitMulExp((SysYParser.MulExpContext) ctx.exp(0));
         }
-        if(node.getSymbol().getType()!=-1 && (node.getSymbol().getType()<=24 || node.getSymbol().getType()==33 || node.getSymbol().getType()==34)) {
-            String text = node.getText();
-            if(node.getText().startsWith("0x")||node.getText().startsWith("0X")){
-                String temp = node.getText().substring(2);
-                text = String.valueOf(Integer.parseInt(temp,16));
-            }
-            else if(node.getText().startsWith("0") && node.getText().length()>1){
-                String temp = node.getText().substring(1);
-                text = String.valueOf(Integer.parseInt(temp,8));
-            }
-            if(target!=null) {
-                for (int l = 0; l < target.getLineno().size(); l++) {
-                    if (node.getSymbol().getLine() == target.getLineno(l)) {
-                        if (text.equals(target.getName())) {
-                            text = change;
-                        }
-                    }
-                }
-            }
-            System.err.println(space + text + " " + colors[node.getSymbol().getType() - 1]);
+        else if(ctx.exp(0) instanceof SysYParser.PlusExpContext){
+            llvmValueRef1 = visitPlusExp((SysYParser.PlusExpContext) ctx.exp(0));
         }
-        return super.visitTerminal(node);
+        else if(ctx.exp(0) instanceof SysYParser.NumberExpContext) {
+            llvmValueRef1 = visitNumberExp((SysYParser.NumberExpContext) ctx.exp(0));
+        }
+        LLVMValueRef llvmValueRef2 = null;
+        if(ctx.exp(1) instanceof SysYParser.MulExpContext){
+            llvmValueRef2 = visitMulExp((SysYParser.MulExpContext) ctx.exp(1));
+        }
+        else if(ctx.exp(1) instanceof SysYParser.PlusExpContext){
+            llvmValueRef2 = visitPlusExp((SysYParser.PlusExpContext) ctx.exp(1));
+        }
+        else if(ctx.exp(1) instanceof SysYParser.NumberExpContext) {
+            llvmValueRef2 = visitNumberExp((SysYParser.NumberExpContext) ctx.exp(1));
+        }
+        LLVMModule
+        return ;
+    }
+
+    @Override
+    public LLVMValueRef visitPlusExp(SysYParser.PlusExpContext ctx) {
+        return super.visitPlusExp(ctx);
+    }
+
+    @Override
+    public LLVMValueRef visitNumberExp(SysYParser.NumberExpContext ctx) {
+        return super.visitNumberExp(ctx);
+    }
+
+    @Override
+    public LLVMValueRef visitNumber(SysYParser.NumberContext ctx) {
+        return super.visitNumber(ctx);
     }
 }
