@@ -1,10 +1,9 @@
-int f(int i){
-    return i;
+void f(int i){
+    return ;
 }
 int main(){
     int a[3] = {1,2,3};
     int b = 4;
-    a[1] = f(b) * (4);
     return a[1];
 }
 

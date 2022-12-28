@@ -31,6 +31,12 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     public LLVMValueRef visitFuncDef(SysYParser.FuncDefContext ctx) {
         //生成返回值类型
         LLVMTypeRef returnType = i32Type;
+        if(ctx.funcType().getText().equals("int")){
+            returnType = i32Type;
+        }
+        else{
+            returnType = LLVMVoidType();
+        }
         int paramNum;
         if(ctx.funcFParams()==null){
             paramNum = 0;

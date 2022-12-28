@@ -1,6 +1,13 @@
 ; ModuleID = 'moudle'
 source_filename = "moudle"
 
+define void @f(i32 %0) {
+fEntry:
+  %i = alloca i32, align 4
+  store i32 %0, i32* %i, align 4
+  ret void
+}
+
 define i32 @main() {
 mainEntry:
   %a = alloca [3 x i32], align 4
@@ -17,10 +24,6 @@ mainEntry:
   store i32 4, i32* %b, align 4
   %pointer6 = getelementptr [3 x i32], [3 x i32]* %a, i32 1
   %pointer7 = bitcast [3 x i32]* %pointer6 to i32*
-  %b8 = load i32, i32* %b, align 4
-  store i32 %b8, i32* %pointer7, align 4
-  %pointer9 = getelementptr [3 x i32], [3 x i32]* %a, i32 1
-  %pointer10 = bitcast [3 x i32]* %pointer9 to i32*
-  %a11 = load i32, i32* %pointer10, align 4
-  ret i32 %a11
+  %a8 = load i32, i32* %pointer7, align 4
+  ret i32 %a8
 }
