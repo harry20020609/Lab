@@ -60,7 +60,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         LLVMBasicBlockRef Main_entry = LLVMAppendBasicBlockInContext(context,this.currentValueRef,
                 LLVMGetValueName(this.currentValueRef).getString()+"Entry");
         this.currentBlock = Main_entry;
-
+        LLVMPositionBuilderAtEnd(builder, this.currentBlock);
         super.visitFuncDef(ctx);
         this.currentScope = this.currentScope.getEnclosingScope();
         return null;
@@ -279,7 +279,16 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         if(ctx.funcRParams()==null){
             LLVMValueRef funcRef = this.currentScope.resolve(this.funcName);
             LLVMValueRef[] args = {};
-            return LLVMBuildCall(builder,funcRef,new PointerPointer(args),0,"returnValue");
+            LLVMTypeRef fnType = LLVMTypeOf(funcRef);
+            LLVMTypeRef returnType = LLVMGetReturnType(fnType);
+            int typeKind = LLVMGetTypeKind(LLVMGetReturnType(returnType));
+            boolean isVoid = (typeKind == LLVMVoidTypeKind);
+            if(isVoid){
+                return LLVMBuildCall(builder, funcRef, new PointerPointer(args), 0, "");
+            }
+            else {
+                return LLVMBuildCall(builder, funcRef, new PointerPointer(args), 0, "returnValue");
+            }
         }
         return visitFuncRParams(ctx.funcRParams());
     }
@@ -298,7 +307,16 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         for(int i=0;i<ctx.param().size();i++){
             args[i] = visitParam(ctx.param(i));
         }
-        return LLVMBuildCall(builder,funcRef,new PointerPointer(args),n,"returnValue");
+        LLVMTypeRef fnType = LLVMTypeOf(funcRef);
+        LLVMTypeRef returnType = LLVMGetReturnType(fnType);
+        int typeKind = LLVMGetTypeKind(LLVMGetReturnType(returnType));
+        boolean isVoid = (typeKind == LLVMVoidTypeKind);
+        if(isVoid){
+            return LLVMBuildCall(builder, funcRef, new PointerPointer(args), n, "");
+        }
+        else {
+            return LLVMBuildCall(builder, funcRef, new PointerPointer(args), n, "returnValue");
+        }
     }
 
     @Override
