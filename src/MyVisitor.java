@@ -356,6 +356,33 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     }
 
     @Override
+    public LLVMValueRef visitExpParenthesis(SysYParser.ExpParenthesisContext ctx) {
+        LLVMValueRef llvmValueRef = null;
+        if(ctx.exp() instanceof SysYParser.MulExpContext){
+            llvmValueRef = visitMulExp((SysYParser.MulExpContext) ctx.exp());
+        }
+        else if(ctx.exp() instanceof SysYParser.PlusExpContext){
+            llvmValueRef = visitPlusExp((SysYParser.PlusExpContext) ctx.exp());
+        }
+        else if(ctx.exp() instanceof SysYParser.NumberExpContext) {
+            llvmValueRef = visitNumberExp((SysYParser.NumberExpContext) ctx.exp());
+        }
+        else if(ctx.exp() instanceof SysYParser.UnaryOpExpContext){
+            llvmValueRef = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.exp());
+        }
+        else if(ctx.exp() instanceof SysYParser.LvalExpContext){
+            llvmValueRef = visitLvalExp((SysYParser.LvalExpContext) ctx.exp());
+        }
+        else if(ctx.exp() instanceof  SysYParser.CallFuncExpContext){
+            llvmValueRef = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp());
+        }
+        else if(ctx.exp() instanceof  SysYParser.ExpParenthesisContext){
+            llvmValueRef = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp());
+        }
+        return llvmValueRef;
+    }
+
+    @Override
     public LLVMValueRef visitMulExp(SysYParser.MulExpContext ctx) {
         LLVMValueRef llvmValueRef1 = null;
         if(ctx.exp(0) instanceof SysYParser.MulExpContext){
@@ -376,6 +403,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         else if(ctx.exp(0) instanceof  SysYParser.CallFuncExpContext){
             llvmValueRef1 = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp(0));
         }
+        else if(ctx.exp(0) instanceof  SysYParser.ExpParenthesisContext){
+            llvmValueRef1 = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp(0));
+        }
         LLVMValueRef llvmValueRef2 = null;
         if(ctx.exp(1) instanceof SysYParser.MulExpContext){
             llvmValueRef2 = visitMulExp((SysYParser.MulExpContext) ctx.exp(1));
@@ -393,7 +423,10 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             llvmValueRef2 = visitLvalExp((SysYParser.LvalExpContext) ctx.exp(1));
         }
         else if(ctx.exp(1) instanceof  SysYParser.CallFuncExpContext){
-            llvmValueRef1 = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp(1));
+            llvmValueRef2 = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp(1));
+        }
+        else if(ctx.exp(1) instanceof  SysYParser.ExpParenthesisContext){
+            llvmValueRef2 = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp(1));
         }
         LLVMValueRef llvmValueRef = null;
         if(ctx.MUL()!=null){
@@ -429,6 +462,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         else if(ctx.exp(0) instanceof  SysYParser.CallFuncExpContext){
             llvmValueRef1 = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp(0));
         }
+        else if(ctx.exp(0) instanceof  SysYParser.ExpParenthesisContext){
+            llvmValueRef1 = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp(0));
+        }
         LLVMValueRef llvmValueRef2 = null;
         if(ctx.exp(1) instanceof SysYParser.MulExpContext){
             llvmValueRef2 = visitMulExp((SysYParser.MulExpContext) ctx.exp(1));
@@ -446,7 +482,10 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             llvmValueRef2 = visitLvalExp((SysYParser.LvalExpContext) ctx.exp(1));
         }
         else if(ctx.exp(1) instanceof  SysYParser.CallFuncExpContext){
-            llvmValueRef1 = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp(1));
+            llvmValueRef2 = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp(1));
+        }
+        else if(ctx.exp(1) instanceof  SysYParser.ExpParenthesisContext){
+            llvmValueRef2 = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp(1));
         }
         LLVMValueRef llvmValueRef = null;
         if(ctx.PLUS()!=null){
@@ -478,6 +517,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         }
         else if(ctx.exp() instanceof  SysYParser.CallFuncExpContext){
             llvmValueRef = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp());
+        }
+        else if(ctx.exp() instanceof  SysYParser.ExpParenthesisContext){
+            llvmValueRef = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp());
         }
         String val = String.valueOf(LLVMConstIntGetSExtValue(llvmValueRef));
         String symbol = ctx.unaryOp().getText();
