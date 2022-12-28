@@ -212,7 +212,35 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             return null;
         }
         else if(ctx.ASSIGN()!=null){
-            LLVMValueRef lvalRef = this.currentScope.resolve(ctx.lVal().IDENT().getText());
+            LLVMValueRef lvalRef = null;
+            if(ctx.lVal().L_BRACKT().size()!=0){
+                LLVMValueRef array = this.currentScope.resolve(ctx.lVal().IDENT().getText());
+                LLVMValueRef index = null;
+                if(ctx.lVal().exp(0) instanceof SysYParser.MulExpContext){
+                    index = visitMulExp((SysYParser.MulExpContext) ctx.lVal().exp(0));
+                }
+                else if(ctx.lVal().exp(0) instanceof SysYParser.PlusExpContext){
+                    index = visitPlusExp((SysYParser.PlusExpContext) ctx.lVal().exp(0));
+                }
+                else if(ctx.lVal().exp(0) instanceof SysYParser.NumberExpContext) {
+                    index = visitNumberExp((SysYParser.NumberExpContext) ctx.lVal().exp(0));
+                }
+                else if(ctx.lVal().exp(0) instanceof SysYParser.UnaryOpExpContext){
+                    index = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.lVal().exp(0));
+                }
+                else if(ctx.lVal().exp(0) instanceof SysYParser.LvalExpContext){
+                    index = visitLvalExp((SysYParser.LvalExpContext) ctx.lVal().exp(0));
+                }
+                else if(ctx.lVal().exp(0) instanceof  SysYParser.CallFuncExpContext){
+                    index = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.lVal().exp(0));
+                }
+                LLVMValueRef pointer = LLVMBuildGEP(builder,array, new PointerPointer(new LLVMValueRef[]{index}),1,"pointer");
+                LLVMTypeRef i32PointerType = LLVMPointerType(i32Type, 0);
+                lvalRef = LLVMBuildBitCast(builder, pointer, i32PointerType, "pointer");
+            }
+            else {
+                lvalRef = this.currentScope.resolve(ctx.lVal().IDENT().getText());
+            }
             LLVMValueRef llvmValueRef = null;
             if(ctx.exp() instanceof SysYParser.MulExpContext){
                 llvmValueRef = visitMulExp((SysYParser.MulExpContext) ctx.exp());
