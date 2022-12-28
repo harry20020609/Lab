@@ -219,13 +219,18 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     public LLVMValueRef visitCallFuncExp(SysYParser.CallFuncExpContext ctx) {
 //        LLVMValueRef funcRef = LLVMGetNamedFunction(module,ctx.IDENT().getText());
         this.funcName = ctx.IDENT().getText();
+        if(ctx.funcRParams()==null){
+            LLVMValueRef funcRef = this.currentScope.resolve(this.funcName);
+            LLVMValueRef[] args = {};
+            return LLVMBuildCall(builder,funcRef,new PointerPointer(args),0,"returnValue");
+        }
         return visitFuncRParams(ctx.funcRParams());
     }
 
     @Override
     public LLVMValueRef visitFuncRParams(SysYParser.FuncRParamsContext ctx) {
         LLVMValueRef funcRef = this.currentScope.resolve(this.funcName);
-        int n;
+        int n = 0;
         if(ctx.param()==null){
             n = 0;
         }
