@@ -124,10 +124,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             LLVMValueRef array = LLVMBuildAlloca(builder, arrayType, ctx.IDENT().getText());
             int n = Integer.parseInt(ctx.constExp(0).getText());
             for(int i=0;i<n;i++) {
-                LLVMValueRef index = LLVMConstInt(i32Type,1,0);
-                LLVMValueRef pointer = LLVMBuildGEP(builder,array,index,1,new BytePointer("pointer"));
-                LLVMTypeRef i32PointerType = LLVMPointerType(i32Type, 0);
-                pointer = LLVMBuildBitCast(builder, pointer, i32PointerType, "pointer");
+                LLVMValueRef index = LLVMConstInt(i32Type,i,1);
+                LLVMValueRef pointer = LLVMBuildGEP2(builder,i32Type,array,
+                        new PointerPointer(new LLVMValueRef[]{index}),1,"pointer");
 //                LLVMValueRef pointer = LLVMBuildGEP(builder,array, new PointerPointer(new LLVMValueRef[]{index}),1,"pointer");
                 LLVMValueRef initRef = null;
                 if (ctx.initVal().initVal(i) != null) {
@@ -292,9 +291,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             else if(ctx.exp(0) instanceof  SysYParser.CallFuncExpContext){
                 index = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp(0));
             }
-            LLVMValueRef pointer = LLVMBuildGEP(builder,array,index,1,new BytePointer("pointer"));
-            LLVMTypeRef i32PointerType = LLVMPointerType(i32Type, 0);
-            pointer = LLVMBuildBitCast(builder, pointer, i32PointerType, "pointer");
+            LLVMValueRef pointer = LLVMBuildGEP2(builder,i32Type,array,
+                    new PointerPointer(new LLVMValueRef[]{index}),1,"pointer");
+            //
             retValue = LLVMBuildLoad(builder,pointer,ctx.IDENT().getText());
         }
         else{
