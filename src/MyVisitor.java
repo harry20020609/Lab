@@ -211,6 +211,30 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             LLVMBuildRet(builder, llvmValueRef);
             return null;
         }
+        else if(ctx.ASSIGN()!=null){
+            LLVMValueRef lvalRef = visitLVal(ctx.lVal());
+            LLVMValueRef llvmValueRef = null;
+            if(ctx.exp() instanceof SysYParser.MulExpContext){
+                llvmValueRef = visitMulExp((SysYParser.MulExpContext) ctx.exp());
+            }
+            else if(ctx.exp() instanceof SysYParser.PlusExpContext){
+                llvmValueRef = visitPlusExp((SysYParser.PlusExpContext) ctx.exp());
+            }
+            else if(ctx.exp() instanceof SysYParser.NumberExpContext) {
+                llvmValueRef = visitNumberExp((SysYParser.NumberExpContext) ctx.exp());
+            }
+            else if(ctx.exp() instanceof SysYParser.UnaryOpExpContext){
+                llvmValueRef = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.exp());
+            }
+            else if(ctx.exp() instanceof SysYParser.LvalExpContext){
+                llvmValueRef = visitLvalExp((SysYParser.LvalExpContext) ctx.exp());
+            }
+            else if(ctx.exp() instanceof SysYParser.CallFuncExpContext){
+                llvmValueRef = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp());
+            }
+            LLVMBuildStore(builder,llvmValueRef,lvalRef);
+            return null;
+        }
         return super.visitStmt(ctx);
     }
 
@@ -293,7 +317,6 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             }
             LLVMValueRef pointer = LLVMBuildGEP2(builder,i32Type,array,
                     new PointerPointer(new LLVMValueRef[]{index}),1,"pointer");
-            //
             retValue = LLVMBuildLoad(builder,pointer,ctx.IDENT().getText());
         }
         else{
