@@ -91,7 +91,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         LLVMPositionBuilderAtEnd(builder, this.currentBlock);
         LLVMValueRef varRef = LLVMBuildAlloca(builder, i32Type, ctx.IDENT().getText());
         LLVMValueRef initRef = null;
-        if (ctx.constInitVal() != null) {
+        if (ctx.constInitVal().constExp() != null) {
             if (ctx.constInitVal().constExp().exp() instanceof SysYParser.LvalExpContext) {
                 initRef = visitLvalExp((SysYParser.LvalExpContext) ctx.constInitVal().constExp().exp());
             } else if (ctx.constInitVal().constExp().exp() instanceof SysYParser.PlusExpContext) {
@@ -225,11 +225,18 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     @Override
     public LLVMValueRef visitFuncRParams(SysYParser.FuncRParamsContext ctx) {
         LLVMValueRef funcRef = this.currentScope.resolve(this.funcName);
-        LLVMValueRef[] args = new LLVMValueRef[ctx.param().size()];
+        int n;
+        if(ctx.param()==null){
+            n = 0;
+        }
+        else{
+            n = ctx.param().size();
+        }
+        LLVMValueRef[] args = new LLVMValueRef[n];
         for(int i=0;i<ctx.param().size();i++){
             args[i] = visitParam(ctx.param(i));
         }
-        return LLVMBuildCall(builder,funcRef,new PointerPointer(args),ctx.param().size(),"returnValue");
+        return LLVMBuildCall(builder,funcRef,new PointerPointer(args),n,"returnValue");
     }
 
     @Override

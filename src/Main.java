@@ -29,7 +29,7 @@ public class Main
         myVisitor.builder = builder;
         myVisitor.context = context;
         myVisitor.visit(tree);
-//        LLVMDumpModule(module);
+        LLVMDumpModule(module);
         if (LLVMPrintModuleToFile(module, args[1], error) != 0) {    // module是你自定义的LLVMModuleRef对象
             LLVMDisposeMessage(error);
         }
