@@ -1,5 +1,5 @@
 int main(){
     int a = 2;
-    int array[5] = {0,1,2};
+    const int array[5] = {0,1,2};
     return array[a];
 }
