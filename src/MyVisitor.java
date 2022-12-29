@@ -14,6 +14,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     LLVMValueRef zero = LLVMConstInt(i32Type, 0, /* signExtend */ 0);
     String funcName = "";
 
+    int count = 0;
     @Override
     public LLVMValueRef visitProgram(SysYParser.ProgramContext ctx) {
         //初始化LLVM
@@ -189,7 +190,26 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
 
     @Override
     public LLVMValueRef visitBlock(SysYParser.BlockContext ctx) {
-        return super.visitBlock(ctx);
+        if(ctx.getParent().getRuleIndex()!=10){
+            LLVMBasicBlockRef entry = LLVMAppendBasicBlockInContext(context,this.currentValueRef,
+                    LLVMGetValueName(this.currentValueRef).getString()+"Block");
+            LLVMBasicBlockRef past = this.currentBlock;
+            Scope scope = new Scope("localscope"+String.valueOf(count),this.currentScope);
+
+            this.currentScope = scope;
+            this.currentBlock = entry;
+            LLVMBuildBr(builder, this.currentBlock);
+            LLVMPositionBuilderAtEnd(builder, this.currentBlock);
+            super.visitBlock(ctx);
+            this.currentBlock = past;
+            this.currentScope = this.currentScope.getEnclosingScope();
+            LLVMBuildBr(builder, this.currentBlock);
+            LLVMPositionBuilderAtEnd(builder, this.currentBlock);
+            return null;
+        }
+        else {
+            return super.visitBlock(ctx);
+        }
     }
 
     @Override
@@ -368,7 +388,6 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             else if(ctx.exp(0) instanceof  SysYParser.CallFuncExpContext){
                 index = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp(0));
             }
-
             PointerPointer valuePointer = new PointerPointer (new LLVMValueRef[]{zero, index}) ;
             LLVMValueRef pointer = LLVMBuildGEP(builder,array,valuePointer,2,"pointer");
             retValue = LLVMBuildLoad(builder,pointer,ctx.IDENT().getText());

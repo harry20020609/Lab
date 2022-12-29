@@ -5,7 +5,7 @@ void f(int i){
 
 int main(){
     int a = 1;
-    {}
+    {int c = 2;}
     int b = 5;
     return a;
 }
