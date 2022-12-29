@@ -176,7 +176,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                 LLVMTypeRef i32PointerType = LLVMPointerType(i32Type, 0);
                 pointer = LLVMBuildBitCast(builder, pointer, i32PointerType, "pointer");
                 LLVMValueRef initRef = null;
-                if (ctx.initVal()!= null) {
+                if (ctx.initVal().initVal(i) != null) {
                     if (ctx.initVal().initVal(i).exp() instanceof SysYParser.LvalExpContext) {
                         initRef = visitLvalExp((SysYParser.LvalExpContext) ctx.initVal().initVal(i).exp());
                     } else if (ctx.initVal().initVal(i).exp() instanceof SysYParser.PlusExpContext) {
