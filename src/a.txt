@@ -1,12 +1,8 @@
-int f(int i,int j){
-    j = i * j;
-    return j;
+void f(){
+
 }
 
 int main(){
-    int array[3];
-    int a = 3 * 4,d=3;
-    int b = 12 / 3;
-    int c = a+b;
-    return array[2];
+    f();
+    return 1;
 }

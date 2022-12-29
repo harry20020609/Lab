@@ -14,6 +14,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     LLVMValueRef zero = LLVMConstInt(i32Type, 0, /* signExtend */ 0);
     String funcName = "";
 
+    boolean ret = false;
     int count = 0;
     @Override
     public LLVMValueRef visitProgram(SysYParser.ProgramContext ctx) {
@@ -63,6 +64,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         LLVMPositionBuilderAtEnd(builder, this.currentBlock);
         super.visitFuncDef(ctx);
         this.currentScope = this.currentScope.getEnclosingScope();
+        if(!this.ret) {
+            LLVMBuildRetVoid(builder);
+        }
         return null;
     }
 
@@ -109,17 +113,23 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                 LLVMValueRef initRef = null;
                 if (ctx.constInitVal().constExp() != null) {
                     if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.LvalExpContext) {
-                        initRef = visitLvalExp((SysYParser.LvalExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
+                        initRef = visitLvalExp
+                                ((SysYParser.LvalExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
                     } else if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.PlusExpContext) {
-                        initRef = visitPlusExp((SysYParser.PlusExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
+                        initRef = visitPlusExp
+                                ((SysYParser.PlusExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
                     } else if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.CallFuncExpContext) {
-                        initRef = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
+                        initRef = visitCallFuncExp
+                                ((SysYParser.CallFuncExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
                     } else if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.MulExpContext) {
-                        initRef = visitMulExp((SysYParser.MulExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
+                        initRef = visitMulExp
+                                ((SysYParser.MulExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
                     } else if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.NumberExpContext) {
-                        initRef = visitNumberExp((SysYParser.NumberExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
+                        initRef = visitNumberExp
+                                ((SysYParser.NumberExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
                     } else if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.UnaryOpExpContext) {
-                        initRef = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
+                        initRef = visitUnaryOpExp
+                                ((SysYParser.UnaryOpExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
                     }
                 }
                 else{
@@ -273,6 +283,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             }
 //            LLVMPositionBuilderAtEnd(builder,this.currentBlock);
             LLVMBuildRet(builder, llvmValueRef);
+            this.ret = true;
             return null;
         }
         else if(ctx.ASSIGN()!=null){
