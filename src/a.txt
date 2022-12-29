@@ -1,8 +1,11 @@
-void f(int i){
-    return ;
-}
-int main(){
-    f(1);
-    return 1;
+int f(int i){
+    return i*i;
 }
 
+int main(){
+    int a = 1;
+    int b = 9;
+    int array[5] = {0,1,2};
+    int c = f(a) * b;
+    return c;
+}

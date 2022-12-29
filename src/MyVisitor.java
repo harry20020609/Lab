@@ -1,4 +1,3 @@
-import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.Pointer;
 import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.llvm.LLVM.*;
@@ -12,7 +11,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     LLVMValueRef currentValueRef = null;
     Scope currentScope = new Scope("GLOBAL",null);
     LLVMBasicBlockRef currentBlock = null;
-
+    LLVMValueRef zero = LLVMConstInt(i32Type, 0, /* signExtend */ 0);
     String funcName = "";
 
     @Override
@@ -68,7 +67,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
 
     @Override
     public LLVMValueRef visitFuncFParams(SysYParser.FuncFParamsContext ctx) {
-        LLVMPositionBuilderAtEnd(builder, this.currentBlock);
+//        LLVMPositionBuilderAtEnd(builder, this.currentBlock);
         for(int i=0;i<ctx.funcFParam().size();i++) {
             LLVMValueRef paramRef = LLVMBuildAlloca(builder, i32Type, ctx.funcFParam(i).IDENT().getText());
             LLVMBuildStore(builder, LLVMGetParam(this.currentValueRef, i), paramRef);
@@ -94,7 +93,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
 
     @Override
     public LLVMValueRef visitConstDef(SysYParser.ConstDefContext ctx) {
-        LLVMPositionBuilderAtEnd(builder, this.currentBlock);
+//        LLVMPositionBuilderAtEnd(builder, this.currentBlock);
         LLVMValueRef varRef = LLVMBuildAlloca(builder, i32Type, ctx.IDENT().getText());
         LLVMValueRef initRef = null;
         if (ctx.constInitVal().constExp() != null) {
@@ -123,15 +122,17 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
 
     @Override
     public LLVMValueRef visitVarDef(SysYParser.VarDefContext ctx) {
-        LLVMPositionBuilderAtEnd(builder, this.currentBlock);
+//        LLVMPositionBuilderAtEnd(builder, this.currentBlock);
         //Array
         if(ctx.L_BRACKT().size()!=0){
-            LLVMTypeRef arrayType = LLVMArrayType(i32Type,Integer.parseInt(ctx.constExp(0).getText()));
+            int num = Integer.parseInt(ctx.constExp(0).getText());
+            LLVMTypeRef arrayType = LLVMArrayType(i32Type,num);
             LLVMValueRef array = LLVMBuildAlloca(builder, arrayType, ctx.IDENT().getText());
             int n = Integer.parseInt(ctx.constExp(0).getText());
             for(int i=0;i<n;i++) {
                 LLVMValueRef index = LLVMConstInt(i32Type,i,1);
-                LLVMValueRef pointer = LLVMBuildGEP(builder,array, new PointerPointer(new LLVMValueRef[]{index}),1,"pointer");
+                PointerPointer valuePointer = new PointerPointer (new LLVMValueRef[]{zero, index}) ;
+                LLVMValueRef pointer = LLVMBuildGEP(builder,array,valuePointer,2,"pointer");
                 LLVMTypeRef i32PointerType = LLVMPointerType(i32Type, 0);
                 pointer = LLVMBuildBitCast(builder, pointer, i32PointerType, "pointer");
                 LLVMValueRef initRef = null;
@@ -213,7 +214,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             else if(ctx.exp() instanceof SysYParser.CallFuncExpContext){
                 llvmValueRef = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp());
             }
-            LLVMPositionBuilderAtEnd(builder,this.currentBlock);
+//            LLVMPositionBuilderAtEnd(builder,this.currentBlock);
             LLVMBuildRet(builder, llvmValueRef);
             return null;
         }
@@ -240,9 +241,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                 else if(ctx.lVal().exp(0) instanceof  SysYParser.CallFuncExpContext){
                     index = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.lVal().exp(0));
                 }
-                LLVMValueRef pointer = LLVMBuildGEP(builder,array, new PointerPointer(new LLVMValueRef[]{index}),1,"pointer");
-                LLVMTypeRef i32PointerType = LLVMPointerType(i32Type, 0);
-                lvalRef = LLVMBuildBitCast(builder, pointer, i32PointerType, "pointer");
+                PointerPointer valuePointer = new PointerPointer (new LLVMValueRef[]{zero, index}) ;
+                LLVMValueRef pointer = LLVMBuildGEP(builder,array,valuePointer,2,"pointer");
+                lvalRef = pointer;
             }
             else {
                 lvalRef = this.currentScope.resolve(ctx.lVal().IDENT().getText());
@@ -367,9 +368,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             else if(ctx.exp(0) instanceof  SysYParser.CallFuncExpContext){
                 index = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp(0));
             }
-            LLVMValueRef pointer = LLVMBuildGEP(builder,array, new PointerPointer(new LLVMValueRef[]{index}),1,"pointer");
-            LLVMTypeRef i32PointerType = LLVMPointerType(i32Type, 0);
-            pointer = LLVMBuildBitCast(builder, pointer, i32PointerType, "pointer");
+
+            PointerPointer valuePointer = new PointerPointer (new LLVMValueRef[]{zero, index}) ;
+            LLVMValueRef pointer = LLVMBuildGEP(builder,array,valuePointer,2,"pointer");
             retValue = LLVMBuildLoad(builder,pointer,ctx.IDENT().getText());
         }
         else{
