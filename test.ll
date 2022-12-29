@@ -9,9 +9,9 @@ mainEntry:
   %pointer = getelementptr [5 x i32], [5 x i32]* %array, i32 0, i32 0
   store i32 0, i32* %pointer, align 4
   %pointer1 = getelementptr [5 x i32], [5 x i32]* %array, i32 0, i32 1
-  store i32 0, i32* %pointer1, align 4
+  store i32 1, i32* %pointer1, align 4
   %pointer2 = getelementptr [5 x i32], [5 x i32]* %array, i32 0, i32 2
-  store i32 0, i32* %pointer2, align 4
+  store i32 2, i32* %pointer2, align 4
   %pointer3 = getelementptr [5 x i32], [5 x i32]* %array, i32 0, i32 3
   store i32 0, i32* %pointer3, align 4
   %pointer4 = getelementptr [5 x i32], [5 x i32]* %array, i32 0, i32 4
