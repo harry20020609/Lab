@@ -1,0 +1,10 @@
+int f(int i,int j){
+    j = i * j;
+    return j;
+}
+
+int main(){
+    int array[3] = {1,2,3};
+    array[1] = array[2];
+    return f(array[1],array[2]);
+}
