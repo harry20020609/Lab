@@ -8,7 +8,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     LLVMBuilderRef builder = null;
     LLVMTypeRef i32Type = LLVMInt32Type();
     LLVMContextRef context = null;
-    LLVMValueRef currentValueRef = null;
+    LLVMValueRef currentFuncRef = null;
     Scope currentScope = new Scope("GLOBAL",null);
     LLVMBasicBlockRef currentBlock = null;
     LLVMValueRef zero = LLVMConstInt(i32Type, 0, /* signExtend */ 0);
@@ -53,19 +53,20 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         LLVMTypeRef ft = LLVMFunctionType(returnType, argumentTypes, paramNum,0);
         //生成函数，即向之前创建的module中添加函数
         LLVMValueRef function = LLVMAddFunction(module,ctx.IDENT().getText(), ft);
-        this.currentValueRef = function;
+        this.currentFuncRef = function;
         this.currentScope.define(function);
         Scope scope = new Scope(ctx.IDENT().getText(),this.currentScope);
         this.currentScope = scope;
 
-        LLVMBasicBlockRef Main_entry = LLVMAppendBasicBlockInContext(context,this.currentValueRef,
-                LLVMGetValueName(this.currentValueRef).getString()+"Entry");
+        LLVMBasicBlockRef Main_entry = LLVMAppendBasicBlockInContext(context,this.currentFuncRef,
+                LLVMGetValueName(this.currentFuncRef).getString()+"Entry");
         this.currentBlock = Main_entry;
         LLVMPositionBuilderAtEnd(builder, this.currentBlock);
         super.visitFuncDef(ctx);
         this.currentScope = this.currentScope.getEnclosingScope();
         if(!this.ret) {
             LLVMBuildRetVoid(builder);
+            this.ret = false;
         }
         return null;
     }
@@ -75,7 +76,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
 //        LLVMPositionBuilderAtEnd(builder, this.currentBlock);
         for(int i=0;i<ctx.funcFParam().size();i++) {
             LLVMValueRef paramRef = LLVMBuildAlloca(builder, i32Type, ctx.funcFParam(i).IDENT().getText());
-            LLVMBuildStore(builder, LLVMGetParam(this.currentValueRef, i), paramRef);
+            LLVMBuildStore(builder, LLVMGetParam(this.currentFuncRef, i), paramRef);
             this.currentScope.define(paramRef);
         }
         return super.visitFuncFParams(ctx);
@@ -240,8 +241,8 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     @Override
     public LLVMValueRef visitBlock(SysYParser.BlockContext ctx) {
 //        if(ctx.getParent().getRuleIndex()!=10){
-//            LLVMBasicBlockRef entry = LLVMAppendBasicBlockInContext(context,this.currentValueRef,
-//                    LLVMGetValueName(this.currentValueRef).getString()+"Block");
+//            LLVMBasicBlockRef entry = LLVMAppendBasicBlockInContext(context,this.currentFuncRef,
+//                    LLVMGetValueName(this.currentFuncRef).getString()+"Block");
 //            LLVMBasicBlockRef past = this.currentBlock;
 //            Scope scope = new Scope("localscope"+String.valueOf(count),this.currentScope);
 //
