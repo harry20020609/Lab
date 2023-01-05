@@ -465,9 +465,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         else if(ctx.exp() instanceof  SysYParser.ExpParenthesisContext){
             llvmValueRef = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp());
         }
-        LLVMValueRef tmp = LLVMBuildICmp(builder, LLVMIntNE, llvmValueRef, zero, "tmp");
-//        LLVMValueRef tmp1 = LLVMBuildXor(builder, tmp, LLVMConstInt(LLVMInt1Type(), 1, 0), "tmp");
-        return LLVMBuildZExt(builder, tmp, LLVMInt32Type(), "tmp");
+        return llvmValueRef;
     }
 
     @Override
