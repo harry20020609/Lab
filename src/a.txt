@@ -1,5 +1,12 @@
 int main(){
-    int a = 2;
-    const int array[5] = {0,1,2};
-    return array[a];
+    int a = 1;
+    int b = 2;
+    int c = 3;
+    if(a==b){
+        c = 1;
+    }
+    else{
+        c = 0;
+    }
+    return c;
 }

@@ -100,73 +100,102 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     @Override
     public LLVMValueRef visitConstDef(SysYParser.ConstDefContext ctx) {
 //        LLVMPositionBuilderAtEnd(builder, this.currentBlock);
-        if(ctx.L_BRACKT().size()!=0){
-            int num = Integer.parseInt(ctx.constExp(0).getText());
-            LLVMTypeRef arrayType = LLVMArrayType(i32Type,num);
-            LLVMValueRef array = LLVMBuildAlloca(builder, arrayType, ctx.IDENT().getText());
-            int n = Integer.parseInt(ctx.constExp(0).getText());
-            for(int i=0;i<n;i++) {
-                LLVMValueRef index = LLVMConstInt(i32Type,i,1);
-                PointerPointer valuePointer = new PointerPointer (new LLVMValueRef[]{zero, index}) ;
-                LLVMValueRef pointer = LLVMBuildGEP(builder,array,valuePointer,2,"pointer");
-                LLVMTypeRef i32PointerType = LLVMPointerType(i32Type, 0);
-                pointer = LLVMBuildBitCast(builder, pointer, i32PointerType, "pointer");
-                LLVMValueRef initRef = null;
-                if (ctx.constInitVal().constInitVal(i) != null) {
-                    if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.LvalExpContext) {
-                        initRef = visitLvalExp
-                                ((SysYParser.LvalExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
-                    } else if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.PlusExpContext) {
-                        initRef = visitPlusExp
-                                ((SysYParser.PlusExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
-                    } else if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.CallFuncExpContext) {
-                        initRef = visitCallFuncExp
-                                ((SysYParser.CallFuncExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
-                    } else if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.MulExpContext) {
-                        initRef = visitMulExp
-                                ((SysYParser.MulExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
-                    } else if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.NumberExpContext) {
-                        initRef = visitNumberExp
-                                ((SysYParser.NumberExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
-                    } else if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.UnaryOpExpContext) {
-                        initRef = visitUnaryOpExp
-                                ((SysYParser.UnaryOpExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
+        if(currentScope.getName().equals("GLOBAL")){
+            if(ctx.L_BRACKT().size()!=0){
+                int num = Integer.parseInt(ctx.constExp(0).getText());
+                LLVMTypeRef arrayType = LLVMArrayType(i32Type, num);
+                LLVMValueRef array = LLVMAddGlobal(module,arrayType,"constGlobal"+ctx.IDENT().getText());
+                LLVMValueRef[] initRefs = new LLVMValueRef[num];
+                for(int i=0;i<num;i++){
+                    if (ctx.constInitVal().constInitVal(i) != null) {
+                        if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.NumberExpContext) {
+                            initRefs[i] = visitNumberExp((SysYParser.NumberExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
+                        }
+                    }
+                    else{
+                        initRefs[i] = zero;
                     }
                 }
-                else{
-                    initRef = LLVMConstInt(i32Type, 0, /* signExtend */ 0);
-                }
-                if(initRef!=null){
-                    LLVMBuildStore(builder,initRef,pointer);
-                }
+                PointerPointer valuepointer = new PointerPointer(initRefs);
+                LLVMSetInitializer(array,LLVMConstArray(arrayType,valuepointer,num));
+                this.currentScope.define(array);
             }
-            this.currentScope.define(array);
-            return null;
+            else{
+                LLVMValueRef globalVar = LLVMAddGlobal(module,i32Type,"constGlobal"+ctx.IDENT().getText());
+                LLVMValueRef initRef = null;
+                if(ctx.constInitVal()!=null){
+                    if (ctx.constInitVal().constExp().exp() instanceof SysYParser.NumberExpContext) {
+                        initRef = visitNumberExp((SysYParser.NumberExpContext) ctx.constInitVal().constExp().exp());
+                    }
+                }
+                LLVMSetInitializer(globalVar,initRef);
+                this.currentScope.define(globalVar);
+            }
         }
         else {
-            LLVMValueRef varRef = LLVMBuildAlloca(builder, i32Type, ctx.IDENT().getText());
-            LLVMValueRef initRef = null;
-            if (ctx.constInitVal().constExp() != null) {
-                if (ctx.constInitVal().constExp().exp() instanceof SysYParser.LvalExpContext) {
-                    initRef = visitLvalExp((SysYParser.LvalExpContext) ctx.constInitVal().constExp().exp());
-                } else if (ctx.constInitVal().constExp().exp() instanceof SysYParser.PlusExpContext) {
-                    initRef = visitPlusExp((SysYParser.PlusExpContext) ctx.constInitVal().constExp().exp());
-                } else if (ctx.constInitVal().constExp().exp() instanceof SysYParser.CallFuncExpContext) {
-                    initRef = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.constInitVal().constExp().exp());
-                } else if (ctx.constInitVal().constExp().exp() instanceof SysYParser.MulExpContext) {
-                    initRef = visitMulExp((SysYParser.MulExpContext) ctx.constInitVal().constExp().exp());
-                } else if (ctx.constInitVal().constExp().exp() instanceof SysYParser.NumberExpContext) {
-                    initRef = visitNumberExp((SysYParser.NumberExpContext) ctx.constInitVal().constExp().exp());
-                } else if (ctx.constInitVal().constExp().exp() instanceof SysYParser.UnaryOpExpContext) {
-                    initRef = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.constInitVal().constExp().exp());
+            if (ctx.L_BRACKT().size() != 0) {
+                int num = Integer.parseInt(ctx.constExp(0).getText());
+                LLVMTypeRef arrayType = LLVMArrayType(i32Type, num);
+                LLVMValueRef array = LLVMBuildAlloca(builder, arrayType, ctx.IDENT().getText());
+                int n = Integer.parseInt(ctx.constExp(0).getText());
+                for (int i = 0; i < n; i++) {
+                    LLVMValueRef index = LLVMConstInt(i32Type, i, 1);
+                    PointerPointer valuePointer = new PointerPointer(new LLVMValueRef[]{zero, index});
+                    LLVMValueRef pointer = LLVMBuildGEP(builder, array, valuePointer, 2, "pointer");
+                    LLVMValueRef initRef = null;
+                    if (ctx.constInitVal().constInitVal(i) != null) {
+                        if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.LvalExpContext) {
+                            initRef = visitLvalExp
+                                    ((SysYParser.LvalExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
+                        } else if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.PlusExpContext) {
+                            initRef = visitPlusExp
+                                    ((SysYParser.PlusExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
+                        } else if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.CallFuncExpContext) {
+                            initRef = visitCallFuncExp
+                                    ((SysYParser.CallFuncExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
+                        } else if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.MulExpContext) {
+                            initRef = visitMulExp
+                                    ((SysYParser.MulExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
+                        } else if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.NumberExpContext) {
+                            initRef = visitNumberExp
+                                    ((SysYParser.NumberExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
+                        } else if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.UnaryOpExpContext) {
+                            initRef = visitUnaryOpExp
+                                    ((SysYParser.UnaryOpExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
+                        }
+                    } else {
+                        initRef = LLVMConstInt(i32Type, 0, /* signExtend */ 0);
+                    }
+                    if (initRef != null) {
+                        LLVMBuildStore(builder, initRef, pointer);
+                    }
                 }
+                this.currentScope.define(array);
+            } else {
+                LLVMValueRef varRef = LLVMBuildAlloca(builder, i32Type, ctx.IDENT().getText());
+                LLVMValueRef initRef = null;
+                if (ctx.constInitVal().constExp() != null) {
+                    if (ctx.constInitVal().constExp().exp() instanceof SysYParser.LvalExpContext) {
+                        initRef = visitLvalExp((SysYParser.LvalExpContext) ctx.constInitVal().constExp().exp());
+                    } else if (ctx.constInitVal().constExp().exp() instanceof SysYParser.PlusExpContext) {
+                        initRef = visitPlusExp((SysYParser.PlusExpContext) ctx.constInitVal().constExp().exp());
+                    } else if (ctx.constInitVal().constExp().exp() instanceof SysYParser.CallFuncExpContext) {
+                        initRef = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.constInitVal().constExp().exp());
+                    } else if (ctx.constInitVal().constExp().exp() instanceof SysYParser.MulExpContext) {
+                        initRef = visitMulExp((SysYParser.MulExpContext) ctx.constInitVal().constExp().exp());
+                    } else if (ctx.constInitVal().constExp().exp() instanceof SysYParser.NumberExpContext) {
+                        initRef = visitNumberExp((SysYParser.NumberExpContext) ctx.constInitVal().constExp().exp());
+                    } else if (ctx.constInitVal().constExp().exp() instanceof SysYParser.UnaryOpExpContext) {
+                        initRef = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.constInitVal().constExp().exp());
+                    }
+                }
+                if (initRef != null) {
+                    LLVMBuildStore(builder, initRef, varRef);
+                }
+                this.currentScope.define(varRef);
             }
-            if (initRef != null) {
-                LLVMBuildStore(builder, initRef, varRef);
-            }
-            this.currentScope.define(varRef);
-            return null;
         }
+        return null;
     }
 
 
@@ -174,66 +203,96 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     @Override
     public LLVMValueRef visitVarDef(SysYParser.VarDefContext ctx) {
 //        LLVMPositionBuilderAtEnd(builder, this.currentBlock);
-        //Array
-        if(ctx.L_BRACKT().size()!=0){
-            int num = Integer.parseInt(ctx.constExp(0).getText());
-            LLVMTypeRef arrayType = LLVMArrayType(i32Type,num);
-            LLVMValueRef array = LLVMBuildAlloca(builder, arrayType, ctx.IDENT().getText());
-            int n = Integer.parseInt(ctx.constExp(0).getText());
-            for(int i=0;i<n;i++) {
-                LLVMValueRef index = LLVMConstInt(i32Type,i,1);
-                PointerPointer valuePointer = new PointerPointer (new LLVMValueRef[]{zero, index}) ;
-                LLVMValueRef pointer = LLVMBuildGEP(builder,array,valuePointer,2,"pointer");
-                LLVMTypeRef i32PointerType = LLVMPointerType(i32Type, 0);
-                pointer = LLVMBuildBitCast(builder, pointer, i32PointerType, "pointer");
-                LLVMValueRef initRef = null;
-                if (ctx.initVal().initVal(i) != null) {
-                    if (ctx.initVal().initVal(i).exp() instanceof SysYParser.LvalExpContext) {
-                        initRef = visitLvalExp((SysYParser.LvalExpContext) ctx.initVal().initVal(i).exp());
-                    } else if (ctx.initVal().initVal(i).exp() instanceof SysYParser.PlusExpContext) {
-                        initRef = visitPlusExp((SysYParser.PlusExpContext) ctx.initVal().initVal(i).exp());
-                    } else if (ctx.initVal().initVal(i).exp() instanceof SysYParser.CallFuncExpContext) {
-                        initRef = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.initVal().initVal(i).exp());
-                    } else if (ctx.initVal().initVal(i).exp() instanceof SysYParser.MulExpContext) {
-                        initRef = visitMulExp((SysYParser.MulExpContext) ctx.initVal().initVal(i).exp());
-                    } else if (ctx.initVal().initVal(i).exp() instanceof SysYParser.NumberExpContext) {
-                        initRef = visitNumberExp((SysYParser.NumberExpContext) ctx.initVal().initVal(i).exp());
-                    } else if (ctx.initVal().initVal(i).exp() instanceof SysYParser.UnaryOpExpContext) {
-                        initRef = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.initVal().initVal(i).exp());
+        if(currentScope.getName().equals("GLOBAL")){
+            if(ctx.L_BRACKT().size()!=0){
+                int num = Integer.parseInt(ctx.constExp(0).getText());
+                LLVMTypeRef arrayType = LLVMArrayType(i32Type, num);
+                LLVMValueRef array = LLVMAddGlobal(module,arrayType,"global"+ctx.IDENT().getText());
+                LLVMValueRef[] initRefs = new LLVMValueRef[num];
+                for(int i=0;i<num;i++){
+                    if (ctx.initVal().initVal(i) != null) {
+                        if (ctx.initVal().initVal(i).exp() instanceof SysYParser.NumberExpContext) {
+                            initRefs[i] = visitNumberExp((SysYParser.NumberExpContext) ctx.initVal().initVal(i).exp());
+                        }
+                    }
+                    else{
+                        initRefs[i] = zero;
                     }
                 }
-                else{
-                    initRef = LLVMConstInt(i32Type, 0, /* signExtend */ 0);
-                }
-                if(initRef!=null){
-                    LLVMBuildStore(builder,initRef,pointer);
-                }
+                PointerPointer valuepointer = new PointerPointer(initRefs);
+                LLVMSetInitializer(array,LLVMConstArray(arrayType,valuepointer,num));
+                this.currentScope.define(array);
             }
-            this.currentScope.define(array);
+            else{
+                LLVMValueRef globalVar = LLVMAddGlobal(module,i32Type,"global"+ctx.IDENT().getText());
+                LLVMValueRef initRef = null;
+                if(ctx.initVal()!=null){
+                    if (ctx.initVal().exp() instanceof SysYParser.NumberExpContext) {
+                        initRef = visitNumberExp((SysYParser.NumberExpContext) ctx.initVal().exp());
+                    }
+                }
+                LLVMSetInitializer(globalVar,initRef);
+                this.currentScope.define(globalVar);
+            }
         }
         else {
-            //Int
-            LLVMValueRef varRef = LLVMBuildAlloca(builder, i32Type, ctx.IDENT().getText());
-            LLVMValueRef initRef = null;
-            if (ctx.initVal() != null) {
-                if (ctx.initVal().exp() instanceof SysYParser.LvalExpContext) {
-                    initRef = visitLvalExp((SysYParser.LvalExpContext) ctx.initVal().exp());
-                } else if (ctx.initVal().exp() instanceof SysYParser.PlusExpContext) {
-                    initRef = visitPlusExp((SysYParser.PlusExpContext) ctx.initVal().exp());
-                } else if (ctx.initVal().exp() instanceof SysYParser.CallFuncExpContext) {
-                    initRef = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.initVal().exp());
-                } else if (ctx.initVal().exp() instanceof SysYParser.MulExpContext) {
-                    initRef = visitMulExp((SysYParser.MulExpContext) ctx.initVal().exp());
-                } else if (ctx.initVal().exp() instanceof SysYParser.NumberExpContext) {
-                    initRef = visitNumberExp((SysYParser.NumberExpContext) ctx.initVal().exp());
-                } else if (ctx.initVal().exp() instanceof SysYParser.UnaryOpExpContext) {
-                    initRef = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.initVal().exp());
+            //Array
+            if (ctx.L_BRACKT().size() != 0) {
+                int num = Integer.parseInt(ctx.constExp(0).getText());
+                LLVMTypeRef arrayType = LLVMArrayType(i32Type, num);
+                LLVMValueRef array = LLVMBuildAlloca(builder, arrayType, ctx.IDENT().getText());
+                int n = Integer.parseInt(ctx.constExp(0).getText());
+                for (int i = 0; i < n; i++) {
+                    LLVMValueRef index = LLVMConstInt(i32Type, i, 1);
+                    PointerPointer valuePointer = new PointerPointer(new LLVMValueRef[]{zero, index});
+                    LLVMValueRef pointer = LLVMBuildGEP(builder, array, valuePointer, 2, "pointer");
+                    LLVMValueRef initRef = null;
+                    if (ctx.initVal().initVal(i) != null) {
+                        if (ctx.initVal().initVal(i).exp() instanceof SysYParser.LvalExpContext) {
+                            initRef = visitLvalExp((SysYParser.LvalExpContext) ctx.initVal().initVal(i).exp());
+                        } else if (ctx.initVal().initVal(i).exp() instanceof SysYParser.PlusExpContext) {
+                            initRef = visitPlusExp((SysYParser.PlusExpContext) ctx.initVal().initVal(i).exp());
+                        } else if (ctx.initVal().initVal(i).exp() instanceof SysYParser.CallFuncExpContext) {
+                            initRef = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.initVal().initVal(i).exp());
+                        } else if (ctx.initVal().initVal(i).exp() instanceof SysYParser.MulExpContext) {
+                            initRef = visitMulExp((SysYParser.MulExpContext) ctx.initVal().initVal(i).exp());
+                        } else if (ctx.initVal().initVal(i).exp() instanceof SysYParser.NumberExpContext) {
+                            initRef = visitNumberExp((SysYParser.NumberExpContext) ctx.initVal().initVal(i).exp());
+                        } else if (ctx.initVal().initVal(i).exp() instanceof SysYParser.UnaryOpExpContext) {
+                            initRef = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.initVal().initVal(i).exp());
+                        }
+                    } else {
+                        initRef = LLVMConstInt(i32Type, 0, /* signExtend */ 0);
+                    }
+                    if (initRef != null) {
+                        LLVMBuildStore(builder, initRef, pointer);
+                    }
                 }
+                this.currentScope.define(array);
+            } else {
+                //Int
+                LLVMValueRef varRef = LLVMBuildAlloca(builder, i32Type, ctx.IDENT().getText());
+                LLVMValueRef initRef = null;
+                if (ctx.initVal() != null) {
+                    if (ctx.initVal().exp() instanceof SysYParser.LvalExpContext) {
+                        initRef = visitLvalExp((SysYParser.LvalExpContext) ctx.initVal().exp());
+                    } else if (ctx.initVal().exp() instanceof SysYParser.PlusExpContext) {
+                        initRef = visitPlusExp((SysYParser.PlusExpContext) ctx.initVal().exp());
+                    } else if (ctx.initVal().exp() instanceof SysYParser.CallFuncExpContext) {
+                        initRef = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.initVal().exp());
+                    } else if (ctx.initVal().exp() instanceof SysYParser.MulExpContext) {
+                        initRef = visitMulExp((SysYParser.MulExpContext) ctx.initVal().exp());
+                    } else if (ctx.initVal().exp() instanceof SysYParser.NumberExpContext) {
+                        initRef = visitNumberExp((SysYParser.NumberExpContext) ctx.initVal().exp());
+                    } else if (ctx.initVal().exp() instanceof SysYParser.UnaryOpExpContext) {
+                        initRef = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.initVal().exp());
+                    }
+                }
+                if (initRef != null) {
+                    LLVMBuildStore(builder, initRef, varRef);
+                }
+                this.currentScope.define(varRef);
             }
-            if(initRef!=null) {
-                LLVMBuildStore(builder, initRef, varRef);
-            }
-            this.currentScope.define(varRef);
         }
         return null;
     }
@@ -339,7 +398,242 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             LLVMBuildStore(builder,llvmValueRef,lvalRef);
             return null;
         }
+        else if(ctx.IF()!=null){
+            LLVMValueRef condition = null;
+            if(ctx.cond() instanceof SysYParser.ExpCondContext){
+                condition = visitExpCond((SysYParser.ExpCondContext) ctx.cond());
+            }
+            else if(ctx.cond() instanceof SysYParser.LtCondContext){
+                condition = visitLtCond((SysYParser.LtCondContext) ctx.cond());
+            }
+            else if(ctx.cond() instanceof SysYParser.EqCondContext){
+                condition = visitEqCond((SysYParser.EqCondContext) ctx.cond());
+            }
+            else if(ctx.cond() instanceof SysYParser.AndCondContext){
+                condition = visitAndCond((SysYParser.AndCondContext) ctx.cond());
+            }
+            else if(ctx.cond() instanceof SysYParser.OrCondContext){
+                condition = visitOrCond((SysYParser.OrCondContext) ctx.cond());
+            }
+            condition = LLVMBuildICmp(builder, LLVMIntNE, condition, zero, "cmp");
+            LLVMBasicBlockRef if_true = LLVMAppendBasicBlockInContext(context,this.currentFuncRef, "if_true");
+            LLVMBasicBlockRef if_false = LLVMAppendBasicBlockInContext(context,this.currentFuncRef, "if_false");
+            LLVMBasicBlockRef ret = LLVMAppendBasicBlockInContext(context,this.currentFuncRef, "entry");
+            LLVMBuildCondBr(builder,condition,if_true,if_false);
+            this.currentBlock = if_true;
+            LLVMPositionBuilderAtEnd(builder,if_true);
+            visitStmt(ctx.stmt(0));
+            LLVMBuildBr(builder,ret);
+            this.currentBlock = if_false;
+            LLVMPositionBuilderAtEnd(builder,if_false);
+            if(ctx.ELSE()!=null){
+                visitStmt(ctx.stmt(1));
+            }
+            LLVMBuildBr(builder,ret);
+            this.currentBlock = ret;
+            LLVMPositionBuilderAtEnd(builder,ret);
+            return null;
+        }
         return super.visitStmt(ctx);
+    }
+
+    @Override
+    public LLVMValueRef visitExpCond(SysYParser.ExpCondContext ctx) {
+        LLVMValueRef llvmValueRef = null;
+        if(ctx.exp() instanceof SysYParser.MulExpContext){
+            llvmValueRef = visitMulExp((SysYParser.MulExpContext) ctx.exp());
+        }
+        else if(ctx.exp() instanceof SysYParser.PlusExpContext){
+            llvmValueRef = visitPlusExp((SysYParser.PlusExpContext) ctx.exp());
+        }
+        else if(ctx.exp() instanceof SysYParser.NumberExpContext) {
+            llvmValueRef = visitNumberExp((SysYParser.NumberExpContext) ctx.exp());
+        }
+        else if(ctx.exp() instanceof SysYParser.UnaryOpExpContext){
+            llvmValueRef = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.exp());
+        }
+        else if(ctx.exp() instanceof SysYParser.LvalExpContext){
+            llvmValueRef = visitLvalExp((SysYParser.LvalExpContext) ctx.exp());
+        }
+        else if(ctx.exp() instanceof  SysYParser.CallFuncExpContext){
+            llvmValueRef = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp());
+        }
+        else if(ctx.exp() instanceof  SysYParser.ExpParenthesisContext){
+            llvmValueRef = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp());
+        }
+        LLVMValueRef tmp = LLVMBuildICmp(builder, LLVMIntNE, llvmValueRef, zero, "tmp");
+//        LLVMValueRef tmp1 = LLVMBuildXor(builder, tmp, LLVMConstInt(LLVMInt1Type(), 1, 0), "tmp");
+        return LLVMBuildZExt(builder, tmp, LLVMInt32Type(), "tmp");
+    }
+
+    @Override
+    public LLVMValueRef visitLtCond(SysYParser.LtCondContext ctx) {
+        LLVMValueRef cond1 = null;
+        if(ctx.cond(0) instanceof SysYParser.ExpCondContext){
+            cond1 = visitExpCond((SysYParser.ExpCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.LtCondContext){
+            cond1 = visitLtCond((SysYParser.LtCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.OrCondContext){
+            cond1 = visitLtCond((SysYParser.LtCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.AndCondContext){
+            cond1 = visitAndCond((SysYParser.AndCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.EqCondContext){
+            cond1 = visitEqCond((SysYParser.EqCondContext) ctx.cond(0));
+        }
+        LLVMValueRef cond2 = null;
+        if(ctx.cond(1) instanceof SysYParser.ExpCondContext){
+            cond2 = visitExpCond((SysYParser.ExpCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.LtCondContext){
+            cond2 = visitLtCond((SysYParser.LtCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.OrCondContext){
+            cond2 = visitLtCond((SysYParser.LtCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.AndCondContext){
+            cond2 = visitAndCond((SysYParser.AndCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.EqCondContext){
+            cond2 = visitEqCond((SysYParser.EqCondContext) ctx.cond(1));
+        }
+        LLVMValueRef cmp = null;
+        if(ctx.LT()!=null){
+            cmp = LLVMBuildICmp(builder, LLVMIntSLT, cond1, cond2, "cmp");
+        }
+        else if(ctx.GT()!=null){
+            cmp = LLVMBuildICmp(builder, LLVMIntSGT, cond1, cond2, "cmp");
+        }
+        else if(ctx.LE()!=null){
+            cmp = LLVMBuildICmp(builder, LLVMIntSLE, cond1, cond2, "cmp");
+        }
+        else if(ctx.GE()!=null){
+            cmp = LLVMBuildICmp(builder, LLVMIntSGE, cond1, cond2, "cmp");
+        }
+        return LLVMBuildZExt(builder, cmp, LLVMInt32Type(), "cmp");
+    }
+
+    @Override
+    public LLVMValueRef visitOrCond(SysYParser.OrCondContext ctx) {
+        LLVMValueRef cond1 = null;
+        if(ctx.cond(0) instanceof SysYParser.ExpCondContext){
+            cond1 = visitExpCond((SysYParser.ExpCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.LtCondContext){
+            cond1 = visitLtCond((SysYParser.LtCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.OrCondContext){
+            cond1 = visitLtCond((SysYParser.LtCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.AndCondContext){
+            cond1 = visitAndCond((SysYParser.AndCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.EqCondContext){
+            cond1 = visitEqCond((SysYParser.EqCondContext) ctx.cond(0));
+        }
+        LLVMValueRef cond2 = null;
+        if(ctx.cond(1) instanceof SysYParser.ExpCondContext){
+            cond2 = visitExpCond((SysYParser.ExpCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.LtCondContext){
+            cond2 = visitLtCond((SysYParser.LtCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.OrCondContext){
+            cond2 = visitLtCond((SysYParser.LtCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.AndCondContext){
+            cond2 = visitAndCond((SysYParser.AndCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.EqCondContext){
+            cond2 = visitEqCond((SysYParser.EqCondContext) ctx.cond(1));
+        }
+        LLVMValueRef orResult = LLVMBuildOr(builder,cond1,cond2,"orResult");
+        return LLVMBuildZExt(builder, orResult, LLVMInt32Type(), "orResult");
+    }
+
+    @Override
+    public LLVMValueRef visitAndCond(SysYParser.AndCondContext ctx) {
+        LLVMValueRef cond1 = null;
+        if(ctx.cond(0) instanceof SysYParser.ExpCondContext){
+            cond1 = visitExpCond((SysYParser.ExpCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.LtCondContext){
+            cond1 = visitLtCond((SysYParser.LtCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.OrCondContext){
+            cond1 = visitLtCond((SysYParser.LtCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.AndCondContext){
+            cond1 = visitAndCond((SysYParser.AndCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.EqCondContext){
+            cond1 = visitEqCond((SysYParser.EqCondContext) ctx.cond(0));
+        }
+        LLVMValueRef cond2 = null;
+        if(ctx.cond(1) instanceof SysYParser.ExpCondContext){
+            cond2 = visitExpCond((SysYParser.ExpCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.LtCondContext){
+            cond2 = visitLtCond((SysYParser.LtCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.OrCondContext){
+            cond2 = visitLtCond((SysYParser.LtCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.AndCondContext){
+            cond2 = visitAndCond((SysYParser.AndCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.EqCondContext){
+            cond2 = visitEqCond((SysYParser.EqCondContext) ctx.cond(1));
+        }
+        LLVMValueRef andResult = LLVMBuildAnd(builder,cond1,cond2,"andResult");
+        return LLVMBuildZExt(builder, andResult, LLVMInt32Type(), "andResult");
+    }
+
+    @Override
+    public LLVMValueRef visitEqCond(SysYParser.EqCondContext ctx) {
+        LLVMValueRef cond1 = null;
+        if(ctx.cond(0) instanceof SysYParser.ExpCondContext){
+            cond1 = visitExpCond((SysYParser.ExpCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.LtCondContext){
+            cond1 = visitLtCond((SysYParser.LtCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.OrCondContext){
+            cond1 = visitLtCond((SysYParser.LtCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.AndCondContext){
+            cond1 = visitAndCond((SysYParser.AndCondContext) ctx.cond(0));
+        }
+        else if(ctx.cond(0) instanceof SysYParser.EqCondContext){
+            cond1 = visitEqCond((SysYParser.EqCondContext) ctx.cond(0));
+        }
+        LLVMValueRef cond2 = null;
+        if(ctx.cond(1) instanceof SysYParser.ExpCondContext){
+            cond2 = visitExpCond((SysYParser.ExpCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.LtCondContext){
+            cond2 = visitLtCond((SysYParser.LtCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.OrCondContext){
+            cond2 = visitLtCond((SysYParser.LtCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.AndCondContext){
+            cond2 = visitAndCond((SysYParser.AndCondContext) ctx.cond(1));
+        }
+        else if(ctx.cond(1) instanceof SysYParser.EqCondContext){
+            cond2 = visitEqCond((SysYParser.EqCondContext) ctx.cond(1));
+        }
+        LLVMValueRef cmp = null;
+        if(ctx.EQ()!=null){
+            cmp = LLVMBuildICmp(builder,LLVMIntEQ,cond1,cond2,"cmp");
+        }
+        else{
+            cmp = LLVMBuildICmp(builder,LLVMIntNE,cond1,cond2,"cmp");
+        }
+        return LLVMBuildZExt(builder, cmp, LLVMInt32Type(), "cmp");
     }
 
     @Override
@@ -617,25 +911,19 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         String val = String.valueOf(LLVMConstIntGetSExtValue(llvmValueRef));
         String symbol = ctx.unaryOp().getText();
         if(symbol.equals("!")){
-            if(Long.valueOf(val)!=0){
-                val = "0";
-            }
-            else{
-                val = "1";
-            }
+            LLVMValueRef tmp = LLVMBuildICmp(builder, LLVMIntNE, llvmValueRef, zero, "tmp");
+            LLVMValueRef tmp1 = LLVMBuildXor(builder, tmp, LLVMConstInt(LLVMInt1Type(), 1, 0), "tmp");
+            return LLVMBuildZExt(builder, tmp1, LLVMInt32Type(), "tmp");
         }
         else{
             if(!symbol.equals("+")){
-                if(val.startsWith("-")){
-                    val = val.substring(1);
-                }
-                else{
-                    val = symbol + val;
-                }
+                LLVMValueRef res = LLVMBuildNeg(builder,llvmValueRef,"tmp");
+                return res;
+            }
+            else{
+                return llvmValueRef;
             }
         }
-        LLVMValueRef res = LLVMConstInt(i32Type,Long.valueOf(val),0);
-        return res;
     }
 
     @Override
