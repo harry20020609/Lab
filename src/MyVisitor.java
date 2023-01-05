@@ -819,13 +819,13 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         }
         LLVMValueRef llvmValueRef = null;
         if(ctx.MUL()!=null){
-            llvmValueRef = LLVMBuildMul(builder,llvmValueRef1,llvmValueRef2,"");
+            llvmValueRef = LLVMBuildMul(builder,llvmValueRef1,llvmValueRef2,"mul");
         }
         else if(ctx.DIV()!=null){
-            llvmValueRef = LLVMBuildSDiv(builder,llvmValueRef1,llvmValueRef2,"");
+            llvmValueRef = LLVMBuildSDiv(builder,llvmValueRef1,llvmValueRef2,"div");
         }
         else if(ctx.MOD()!=null){
-            llvmValueRef = LLVMBuildSRem(builder,llvmValueRef1,llvmValueRef2,"");
+            llvmValueRef = LLVMBuildSRem(builder,llvmValueRef1,llvmValueRef2,"mod");
         }
         return llvmValueRef;
     }
@@ -878,10 +878,10 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         }
         LLVMValueRef llvmValueRef = null;
         if(ctx.PLUS()!=null){
-            llvmValueRef = LLVMBuildAdd(builder,llvmValueRef1,llvmValueRef2,"");
+            llvmValueRef = LLVMBuildAdd(builder,llvmValueRef1,llvmValueRef2,"plus");
         }
         else if(ctx.MINUS()!=null){
-            llvmValueRef = LLVMBuildSub(builder,llvmValueRef1,llvmValueRef2,"");
+            llvmValueRef = LLVMBuildSub(builder,llvmValueRef1,llvmValueRef2,"minus");
         }
         return llvmValueRef;
     }

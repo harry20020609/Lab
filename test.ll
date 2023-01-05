@@ -24,9 +24,11 @@ if_true:                                          ; preds = %mainEntry
   br label %entry
 
 if_false:                                         ; preds = %mainEntry
+  %d6 = load i32, i32* %d, align 4
+  ret i32 %d6
   br label %entry
 
 entry:                                            ; preds = %if_false, %if_true
-  %d6 = load i32, i32* %d, align 4
-  ret i32 %d6
+  %d7 = load i32, i32* %d, align 4
+  ret i32 %d7
 }
