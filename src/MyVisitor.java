@@ -104,7 +104,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             if(ctx.L_BRACKT().size()!=0){
                 int num = Integer.parseInt(ctx.constExp(0).getText());
                 LLVMTypeRef arrayType = LLVMArrayType(i32Type, num);
-                LLVMValueRef array = LLVMAddGlobal(module,arrayType,"constGlobal"+ctx.IDENT().getText());
+                LLVMValueRef array = LLVMAddGlobal(module,arrayType,ctx.IDENT().getText());
                 LLVMValueRef[] initRefs = new LLVMValueRef[num];
                 for(int i=0;i<num;i++){
                     if (ctx.constInitVal().constInitVal(i) != null) {
@@ -121,7 +121,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                 this.currentScope.define(array);
             }
             else{
-                LLVMValueRef globalVar = LLVMAddGlobal(module,i32Type,"constGlobal"+ctx.IDENT().getText());
+                LLVMValueRef globalVar = LLVMAddGlobal(module,i32Type,ctx.IDENT().getText());
                 LLVMValueRef initRef = null;
                 if(ctx.constInitVal()!=null){
                     if (ctx.constInitVal().constExp().exp() instanceof SysYParser.NumberExpContext) {
@@ -207,12 +207,16 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             if(ctx.L_BRACKT().size()!=0){
                 int num = Integer.parseInt(ctx.constExp(0).getText());
                 LLVMTypeRef arrayType = LLVMArrayType(i32Type, num);
-                LLVMValueRef array = LLVMAddGlobal(module,arrayType,"global"+ctx.IDENT().getText());
+                LLVMValueRef array = LLVMAddGlobal(module,arrayType,ctx.IDENT().getText());
                 LLVMValueRef[] initRefs = new LLVMValueRef[num];
                 for(int i=0;i<num;i++){
-                    if (ctx.initVal().initVal(i) != null) {
-                        if (ctx.initVal().initVal(i).exp() instanceof SysYParser.NumberExpContext) {
-                            initRefs[i] = visitNumberExp((SysYParser.NumberExpContext) ctx.initVal().initVal(i).exp());
+                    if(ctx.initVal()!=null) {
+                        if (ctx.initVal().initVal(i) != null) {
+                            if (ctx.initVal().initVal(i).exp() instanceof SysYParser.NumberExpContext) {
+                                initRefs[i] = visitNumberExp((SysYParser.NumberExpContext) ctx.initVal().initVal(i).exp());
+                            }
+                        } else {
+                            initRefs[i] = zero;
                         }
                     }
                     else{
@@ -224,7 +228,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                 this.currentScope.define(array);
             }
             else{
-                LLVMValueRef globalVar = LLVMAddGlobal(module,i32Type,"global"+ctx.IDENT().getText());
+                LLVMValueRef globalVar = LLVMAddGlobal(module,i32Type,ctx.IDENT().getText());
                 LLVMValueRef initRef = null;
                 if(ctx.initVal()!=null){
                     if (ctx.initVal().exp() instanceof SysYParser.NumberExpContext) {
