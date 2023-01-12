@@ -165,6 +165,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                         } else if (ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.UnaryOpExpContext) {
                             initRef = visitUnaryOpExp
                                     ((SysYParser.UnaryOpExpContext) ctx.constInitVal().constInitVal(i).constExp().exp());
+                        }else if(ctx.constInitVal().constInitVal(i).constExp().exp() instanceof SysYParser.ExpParenthesisContext){
+                            initRef = visitExpParenthesis
+                                    ((SysYParser.ExpParenthesisContext) ctx.constInitVal().constInitVal(i).constExp().exp());
                         }
                     } else {
                         initRef = LLVMConstInt(i32Type, 0, /* signExtend */ 0);
@@ -190,6 +193,8 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                         initRef = visitNumberExp((SysYParser.NumberExpContext) ctx.constInitVal().constExp().exp());
                     } else if (ctx.constInitVal().constExp().exp() instanceof SysYParser.UnaryOpExpContext) {
                         initRef = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.constInitVal().constExp().exp());
+                    } else if (ctx.constInitVal().constExp().exp() instanceof SysYParser.ExpParenthesisContext){
+                        initRef = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.constInitVal().constExp().exp());
                     }
                 }
                 if (initRef != null) {
@@ -267,6 +272,8 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                             initRef = visitNumberExp((SysYParser.NumberExpContext) ctx.initVal().initVal(i).exp());
                         } else if (ctx.initVal().initVal(i).exp() instanceof SysYParser.UnaryOpExpContext) {
                             initRef = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.initVal().initVal(i).exp());
+                        }else if(ctx.initVal().initVal(i).exp() instanceof SysYParser.ExpParenthesisContext){
+                            initRef = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.initVal().initVal(i).exp());
                         }
                     } else {
                         initRef = LLVMConstInt(i32Type, 0, /* signExtend */ 0);
@@ -293,6 +300,8 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                         initRef = visitNumberExp((SysYParser.NumberExpContext) ctx.initVal().exp());
                     } else if (ctx.initVal().exp() instanceof SysYParser.UnaryOpExpContext) {
                         initRef = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.initVal().exp());
+                    }else if(ctx.initVal().exp() instanceof SysYParser.ExpParenthesisContext){
+                        initRef = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.initVal().exp());
                     }
                 }
                 if (initRef != null) {
