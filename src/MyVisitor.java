@@ -379,6 +379,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                 else if(ctx.lVal().exp(0) instanceof  SysYParser.CallFuncExpContext){
                     index = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.lVal().exp(0));
                 }
+                else if(ctx.lVal().exp(0) instanceof SysYParser.ExpParenthesisContext){
+                    index = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.lVal().exp(0));
+                }
                 PointerPointer valuePointer = new PointerPointer (new LLVMValueRef[]{zero, index}) ;
                 LLVMValueRef pointer = LLVMBuildGEP(builder,array,valuePointer,2,"pointer");
                 lvalRef = pointer;
@@ -404,6 +407,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             }
             else if(ctx.exp() instanceof SysYParser.CallFuncExpContext){
                 llvmValueRef = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp());
+            }
+            else if(ctx.exp() instanceof SysYParser.ExpParenthesisContext){
+                llvmValueRef = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp());
             }
             LLVMBuildStore(builder,llvmValueRef,lvalRef);
             return null;
@@ -762,6 +768,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         else if(ctx.exp() instanceof  SysYParser.CallFuncExpContext){
             llvmValueRef = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp());
         }
+        else if(ctx.exp() instanceof SysYParser.ExpParenthesisContext){
+            llvmValueRef = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp());
+        }
         return llvmValueRef;
     }
 
@@ -788,6 +797,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             }
             else if(ctx.exp(0) instanceof  SysYParser.CallFuncExpContext){
                 index = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp(0));
+            }
+            else if(ctx.exp(0) instanceof SysYParser.ExpParenthesisContext){
+                index = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp(0));
             }
             PointerPointer valuePointer = new PointerPointer (new LLVMValueRef[]{zero, index}) ;
             LLVMValueRef pointer = LLVMBuildGEP(builder,array,valuePointer,2,"pointer");
