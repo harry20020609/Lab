@@ -19,7 +19,6 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     Stack<LLVMBasicBlockRef> whileConds = new Stack<>();
     Stack<LLVMBasicBlockRef> whileEntrys = new Stack<>();
     boolean ret = false;
-    String retString = "";
     @Override
     public LLVMValueRef visitProgram(SysYParser.ProgramContext ctx) {
         //初始化LLVM
@@ -36,7 +35,6 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     public LLVMValueRef visitFuncDef(SysYParser.FuncDefContext ctx) {
         //生成返回值类型
         LLVMTypeRef returnType = i32Type;
-        this.retString = ctx.funcType().getText();
         if(ctx.funcType().getText().equals("int")){
             returnType = i32Type;
         }
@@ -69,10 +67,10 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         LLVMPositionBuilderAtEnd(builder, this.currentBlock);
         super.visitFuncDef(ctx);
         this.currentScope = this.currentScope.getEnclosingScope();
-//        if(!this.ret) {
-//            LLVMBuildRetVoid(builder);
-//            this.ret = false;
-//        }
+        if(!this.ret) {
+            LLVMBuildRetVoid(builder);
+            this.ret = false;
+        }
         return null;
     }
 
@@ -351,13 +349,8 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                 llvmValueRef = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp());
             }
 //            LLVMPositionBuilderAtEnd(builder,this.currentBlock);
-            if(this.retString.equals("int")) {
-                LLVMBuildRet(builder, llvmValueRef);
-            }
-            else{
-                LLVMBuildRetVoid(builder);
-            }
-//            this.ret = true;
+            LLVMBuildRet(builder, llvmValueRef);
+            this.ret = true;
             return null;
         }
         else if(ctx.ASSIGN()!=null){
@@ -480,7 +473,8 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             LLVMPositionBuilderAtEnd(builder,whileBody);
             visitStmt(ctx.stmt(0));
             LLVMBuildBr(builder,whileCondition);
-
+            this.whileEntrys.pop();
+            this.whileConds.pop();
             this.currentBlock = entry;
             LLVMPositionBuilderAtEnd(builder,entry);
             return null;
