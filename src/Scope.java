@@ -21,8 +21,8 @@ public class Scope{
         return this.enclosingScope;
     }
 
-    public void define(LLVMValueRef valueRef) {
-        table.put(LLVMGetValueName(valueRef).getString(), valueRef);
+    public void define(String name,LLVMValueRef valueRef) {
+        table.put(name , valueRef);
     }
 
     public LLVMValueRef resolve(String name) {

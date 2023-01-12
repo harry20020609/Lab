@@ -19,6 +19,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     Stack<LLVMBasicBlockRef> whileConds = new Stack<>();
     Stack<LLVMBasicBlockRef> whileEntrys = new Stack<>();
     boolean ret = false;
+    int count = 0;
     @Override
     public LLVMValueRef visitProgram(SysYParser.ProgramContext ctx) {
         //初始化LLVM
@@ -57,7 +58,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         //生成函数，即向之前创建的module中添加函数
         LLVMValueRef function = LLVMAddFunction(module,ctx.IDENT().getText(), ft);
         this.currentFuncRef = function;
-        this.currentScope.define(function);
+        this.currentScope.define(ctx.IDENT().getText(),function);
         Scope scope = new Scope(ctx.IDENT().getText(),this.currentScope);
         this.currentScope = scope;
 
@@ -80,7 +81,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         for(int i=0;i<ctx.funcFParam().size();i++) {
             LLVMValueRef paramRef = LLVMBuildAlloca(builder, i32Type, ctx.funcFParam(i).IDENT().getText());
             LLVMBuildStore(builder, LLVMGetParam(this.currentFuncRef, i), paramRef);
-            this.currentScope.define(paramRef);
+            this.currentScope.define(ctx.funcFParam(i).IDENT().getText(),paramRef);
         }
         return super.visitFuncFParams(ctx);
     }
@@ -121,7 +122,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                 }
                 PointerPointer valuepointer = new PointerPointer(initRefs);
                 LLVMSetInitializer(array,LLVMConstArray(arrayType,valuepointer,num));
-                this.currentScope.define(array);
+                this.currentScope.define(ctx.IDENT().getText(),array);
             }
             else{
                 LLVMValueRef globalVar = LLVMAddGlobal(module,i32Type,ctx.IDENT().getText());
@@ -132,7 +133,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                     }
                 }
                 LLVMSetInitializer(globalVar,initRef);
-                this.currentScope.define(globalVar);
+                this.currentScope.define(ctx.IDENT().getText(),globalVar);
             }
         }
         else {
@@ -176,7 +177,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                         LLVMBuildStore(builder, initRef, pointer);
                     }
                 }
-                this.currentScope.define(array);
+                this.currentScope.define(ctx.IDENT().getText(),array);
             } else {
                 LLVMValueRef varRef = LLVMBuildAlloca(builder, i32Type, ctx.IDENT().getText());
                 LLVMValueRef initRef = null;
@@ -200,7 +201,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                 if (initRef != null) {
                     LLVMBuildStore(builder, initRef, varRef);
                 }
-                this.currentScope.define(varRef);
+                this.currentScope.define(ctx.IDENT().getText(),varRef);
             }
         }
         return null;
@@ -233,7 +234,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                 }
                 PointerPointer valuepointer = new PointerPointer(initRefs);
                 LLVMSetInitializer(array,LLVMConstArray(arrayType,valuepointer,num));
-                this.currentScope.define(array);
+                this.currentScope.define(ctx.IDENT().getText(),array);
             }
             else{
                 LLVMValueRef globalVar = LLVMAddGlobal(module,i32Type,ctx.IDENT().getText());
@@ -244,7 +245,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                     }
                 }
                 LLVMSetInitializer(globalVar,initRef);
-                this.currentScope.define(globalVar);
+                this.currentScope.define(ctx.IDENT().getText(),globalVar);
             }
         }
         else {
@@ -282,7 +283,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                         LLVMBuildStore(builder, initRef, pointer);
                     }
                 }
-                this.currentScope.define(array);
+                this.currentScope.define(ctx.IDENT().getText(),array);
             } else {
                 //Int
                 LLVMValueRef varRef = LLVMBuildAlloca(builder, i32Type, ctx.IDENT().getText());
@@ -307,7 +308,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                 if (initRef != null) {
                     LLVMBuildStore(builder, initRef, varRef);
                 }
-                this.currentScope.define(varRef);
+                this.currentScope.define(ctx.IDENT().getText(),varRef);
             }
         }
         return null;
@@ -315,23 +316,23 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
 
     @Override
     public LLVMValueRef visitBlock(SysYParser.BlockContext ctx) {
-//        if(ctx.getParent().getRuleIndex()!=10){
+        if(ctx.getParent().getRuleIndex()!=10){
 //            LLVMBasicBlockRef entry = LLVMAppendBasicBlockInContext(context,this.currentFuncRef,
 //                    LLVMGetValueName(this.currentFuncRef).getString()+"Block");
 //            LLVMBasicBlockRef past = this.currentBlock;
-//            Scope scope = new Scope("localscope"+String.valueOf(count),this.currentScope);
-//
-//            this.currentScope = scope;
+            Scope scope = new Scope("localscope"+String.valueOf(count),this.currentScope);
+            count++;
+            this.currentScope = scope;
 //            this.currentBlock = entry;
 //            LLVMBuildBr(builder, this.currentBlock);
 //            LLVMPositionBuilderAtEnd(builder, this.currentBlock);
-//            super.visitBlock(ctx);
+            super.visitBlock(ctx);
 //            this.currentBlock = past;
-//            this.currentScope = this.currentScope.getEnclosingScope();
+            this.currentScope = this.currentScope.getEnclosingScope();
 //            LLVMBuildBr(builder, this.currentBlock);
 //            LLVMPositionBuilderAtEnd(builder, this.currentBlock);
-//            return null;
-//        }
+            return null;
+        }
         return super.visitBlock(ctx);
     }
 
