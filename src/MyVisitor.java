@@ -348,6 +348,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             else if(ctx.exp() instanceof SysYParser.CallFuncExpContext){
                 llvmValueRef = visitCallFuncExp((SysYParser.CallFuncExpContext) ctx.exp());
             }
+            else if(ctx.exp() instanceof SysYParser.ExpParenthesisContext){
+                llvmValueRef = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp());
+            }
 //            LLVMPositionBuilderAtEnd(builder,this.currentBlock);
             LLVMBuildRet(builder, llvmValueRef);
             this.ret = true;
