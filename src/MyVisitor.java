@@ -68,10 +68,10 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         LLVMPositionBuilderAtEnd(builder, this.currentBlock);
         super.visitFuncDef(ctx);
         this.currentScope = this.currentScope.getEnclosingScope();
-//        if(!this.ret) {
-//            LLVMBuildRetVoid(builder);
-//            this.ret = false;
-//        }
+        if(!this.ret) {
+            LLVMBuildRetVoid(builder);
+            this.ret = false;
+        }
         return null;
     }
 
@@ -486,8 +486,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             return null;
         }
         else if(ctx.CONTINUE()!=null){
-            LLVMBasicBlockRef dest = this.whileConds.pop();
-            this.whileEntrys.pop();
+            LLVMBasicBlockRef dest = this.whileConds.lastElement();
             LLVMBuildBr(builder,dest);
             return null;
         }
