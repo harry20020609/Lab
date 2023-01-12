@@ -125,7 +125,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             }
             else{
                 LLVMValueRef globalVar = LLVMAddGlobal(module,i32Type,ctx.IDENT().getText());
-                LLVMValueRef initRef = null;
+                LLVMValueRef initRef = zero;
                 if(ctx.constInitVal()!=null){
                     if (ctx.constInitVal().constExp().exp() instanceof SysYParser.NumberExpContext) {
                         initRef = visitNumberExp((SysYParser.NumberExpContext) ctx.constInitVal().constExp().exp());
@@ -232,7 +232,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             }
             else{
                 LLVMValueRef globalVar = LLVMAddGlobal(module,i32Type,ctx.IDENT().getText());
-                LLVMValueRef initRef = null;
+                LLVMValueRef initRef = zero;
                 if(ctx.initVal()!=null){
                     if (ctx.initVal().exp() instanceof SysYParser.NumberExpContext) {
                         initRef = visitNumberExp((SysYParser.NumberExpContext) ctx.initVal().exp());
