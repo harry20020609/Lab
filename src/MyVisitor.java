@@ -1,6 +1,9 @@
 import org.bytedeco.javacpp.Pointer;
 import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.llvm.LLVM.*;
+
+import java.util.Stack;
+
 import static org.bytedeco.llvm.global.LLVM.*;
 
 public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
@@ -13,7 +16,8 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     LLVMBasicBlockRef currentBlock = null;
     LLVMValueRef zero = LLVMConstInt(i32Type, 0, /* signExtend */ 0);
     String funcName = "";
-
+    Stack<LLVMBasicBlockRef> whileConds = new Stack<>();
+    Stack<LLVMBasicBlockRef> whileEntrys = new Stack<>();
     boolean ret = false;
     int count = 0;
     @Override
@@ -436,6 +440,55 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             LLVMBuildBr(builder,ret);
             this.currentBlock = ret;
             LLVMPositionBuilderAtEnd(builder,ret);
+            return null;
+        }
+        else if(ctx.WHILE()!=null){
+            LLVMBasicBlockRef whileCondition = LLVMAppendBasicBlockInContext(context,this.currentFuncRef, "whileCondition");
+            LLVMBuildBr(builder,whileCondition);
+            this.currentBlock = whileCondition;
+            LLVMPositionBuilderAtEnd(builder,whileCondition);
+            LLVMValueRef condition = null;
+            if(ctx.cond() instanceof SysYParser.ExpCondContext){
+                condition = visitExpCond((SysYParser.ExpCondContext) ctx.cond());
+            }
+            else if(ctx.cond() instanceof SysYParser.LtCondContext){
+                condition = visitLtCond((SysYParser.LtCondContext) ctx.cond());
+            }
+            else if(ctx.cond() instanceof SysYParser.EqCondContext){
+                condition = visitEqCond((SysYParser.EqCondContext) ctx.cond());
+            }
+            else if(ctx.cond() instanceof SysYParser.AndCondContext){
+                condition = visitAndCond((SysYParser.AndCondContext) ctx.cond());
+            }
+            else if(ctx.cond() instanceof SysYParser.OrCondContext){
+                condition = visitOrCond((SysYParser.OrCondContext) ctx.cond());
+            }
+            condition = LLVMBuildICmp(builder, LLVMIntNE, condition, zero, "cmp");
+            LLVMBasicBlockRef whileBody = LLVMAppendBasicBlockInContext(context,this.currentFuncRef,"whileBody");
+            LLVMBasicBlockRef entry = LLVMAppendBasicBlockInContext(context,this.currentFuncRef,"entry");
+            LLVMBuildCondBr(builder,condition,whileBody,entry);
+            this.whileConds.push(whileCondition);
+            this.whileEntrys.push(entry);
+
+            this.currentBlock = whileBody;
+            LLVMPositionBuilderAtEnd(builder,whileBody);
+            visitStmt(ctx.stmt(0));
+            LLVMBuildBr(builder,whileCondition);
+
+            this.currentBlock = entry;
+            LLVMPositionBuilderAtEnd(builder,entry);
+            return null;
+        }
+        else if(ctx.BREAK()!=null){
+            LLVMBasicBlockRef dest = this.whileEntrys.pop();
+            this.whileConds.pop();
+            LLVMBuildBr(builder,dest);
+            return null;
+        }
+        else if(ctx.CONTINUE()!=null){
+            LLVMBasicBlockRef dest = this.whileConds.pop();
+            this.whileEntrys.pop();
+            LLVMBuildBr(builder,dest);
             return null;
         }
         return super.visitStmt(ctx);

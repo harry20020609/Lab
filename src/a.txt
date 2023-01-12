@@ -1,13 +1,23 @@
-int a = 1;
-int b = 2;
-int c = 3;
-int main() {
-    int d = 0;
-    if(a<b<a){
-        d = 1;
+int a[10]={5,4,3,2,1,8,6,2,4,7};
+
+int main(){
+    int i=0,j=0;
+    int min=0;
+    while(i<9){
+        j=i;
+        min=i;
+        while(j<9){
+            if(a[j]<a[min]){
+                min=j;
+            }
+            j=j+1;
+        }
+        if(min!=i){
+            int temp=a[min];
+            a[min]=a[i];
+            a[i]=temp;
+        }
+        i=i+1;
     }
-    else{
-        return d;
-    }
-    return d;
+    return a[3];
 }
