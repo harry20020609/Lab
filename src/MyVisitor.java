@@ -473,15 +473,16 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             LLVMPositionBuilderAtEnd(builder,whileBody);
             visitStmt(ctx.stmt(0));
             LLVMBuildBr(builder,whileCondition);
-            this.whileEntrys.pop();
-            this.whileConds.pop();
+
             this.currentBlock = entry;
             LLVMPositionBuilderAtEnd(builder,entry);
+            this.whileEntrys.pop();
+            this.whileConds.pop();
             return null;
         }
         else if(ctx.BREAK()!=null){
-            LLVMBasicBlockRef dest = this.whileEntrys.pop();
-            this.whileConds.pop();
+            LLVMBasicBlockRef dest = this.whileEntrys.lastElement();
+//            this.whileConds.pop();
             LLVMBuildBr(builder,dest);
             return null;
         }
