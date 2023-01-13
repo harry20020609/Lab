@@ -224,6 +224,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                             if (ctx.initVal().initVal(i).exp() instanceof SysYParser.NumberExpContext) {
                                 initRefs[i] = visitNumberExp((SysYParser.NumberExpContext) ctx.initVal().initVal(i).exp());
                             }
+                            else if(ctx.initVal().initVal(i).exp() instanceof SysYParser.UnaryOpExpContext){
+                                initRefs[i] = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.initVal().initVal(i).exp());
+                            }
                         } else {
                             initRefs[i] = zero;
                         }
@@ -242,6 +245,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                 if(ctx.initVal()!=null){
                     if (ctx.initVal().exp() instanceof SysYParser.NumberExpContext) {
                         initRef = visitNumberExp((SysYParser.NumberExpContext) ctx.initVal().exp());
+                    }
+                    else if(ctx.initVal().exp() instanceof SysYParser.UnaryOpExpContext){
+                        initRef = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.initVal().exp());
                     }
                 }
                 LLVMSetInitializer(globalVar,initRef);

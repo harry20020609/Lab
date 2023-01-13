@@ -1,9 +1,1 @@
-int a = 0;
-int main(){
-    int a = 1;
-    while(1){
-        int a = 2;
-        break;
-    }
-    return a;
-}
+int a = -1;
