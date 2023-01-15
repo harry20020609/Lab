@@ -322,7 +322,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
 
     @Override
     public LLVMValueRef visitBlock(SysYParser.BlockContext ctx) {
-        if(ctx.getParent().getRuleIndex()!=10){
+//        if(ctx.getParent().getRuleIndex()!=10){
 //            LLVMBasicBlockRef entry = LLVMAppendBasicBlockInContext(context,this.currentFuncRef,
 //                    LLVMGetValueName(this.currentFuncRef).getString()+"Block");
 //            LLVMBasicBlockRef past = this.currentBlock;
@@ -338,8 +338,8 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
 //            LLVMBuildBr(builder, this.currentBlock);
 //            LLVMPositionBuilderAtEnd(builder, this.currentBlock);
             return null;
-        }
-        return super.visitBlock(ctx);
+//        }
+//        return super.visitBlock(ctx);
     }
 
     @Override
