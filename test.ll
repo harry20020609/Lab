@@ -1,4 +1,7 @@
 ; ModuleID = 'moudle'
 source_filename = "moudle"
 
-@a = global i32 -1
+define i32 @main() {
+mainEntry:
+  ret i32 1
+}
