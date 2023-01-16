@@ -489,7 +489,6 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             LLVMBuildBr(builder,ret);
             this.currentBlock = ret;
             LLVMPositionBuilderAtEnd(builder,ret);
-            LLVMBuildAlloca(builder,i32Type,"space");
             return null;
         }
         else if(ctx.WHILE()!=null){
@@ -527,7 +526,6 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
 
             this.currentBlock = entry;
             LLVMPositionBuilderAtEnd(builder,entry);
-            LLVMBuildAlloca(builder,i32Type,"space");
             this.whileEntrys.pop();
             this.whileConds.pop();
             return null;
