@@ -2,6 +2,8 @@ import org.bytedeco.javacpp.Pointer;
 import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.llvm.LLVM.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import static org.bytedeco.llvm.global.LLVM.*;
@@ -18,6 +20,8 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     String funcName = "";
     Stack<LLVMBasicBlockRef> whileConds = new Stack<>();
     Stack<LLVMBasicBlockRef> whileEntrys = new Stack<>();
+    List<LLVMValueRef> funcArrayElem = new ArrayList<>();
+    boolean p = false;
     boolean ret = false;
     int count = 0;
     @Override
@@ -51,7 +55,12 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         }
         PointerPointer<Pointer> argumentTypes = new PointerPointer<>(paramNum);
         for(int i=0;i<paramNum;i++){
-            argumentTypes.put(i,i32Type);
+            if(ctx.funcFParams().funcFParam(i).L_BRACKT().size()!=0) {
+                argumentTypes.put(i, LLVMPointerType(i32Type,0));
+            }
+            else{
+                argumentTypes.put(i, i32Type);
+            }
         }
         //生成函数类型
         LLVMTypeRef ft = LLVMFunctionType(returnType, argumentTypes, paramNum,0);
@@ -79,9 +88,17 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
     public LLVMValueRef visitFuncFParams(SysYParser.FuncFParamsContext ctx) {
 //        LLVMPositionBuilderAtEnd(builder, this.currentBlock);
         for(int i=0;i<ctx.funcFParam().size();i++) {
-            LLVMValueRef paramRef = LLVMBuildAlloca(builder, i32Type, ctx.funcFParam(i).IDENT().getText());
-            LLVMBuildStore(builder, LLVMGetParam(this.currentFuncRef, i), paramRef);
-            this.currentScope.define(ctx.funcFParam(i).IDENT().getText(),paramRef);
+            if(ctx.funcFParam(i).L_BRACKT().size()!=0){
+                LLVMValueRef paramRef = LLVMBuildAlloca(builder,LLVMPointerType(i32Type,0),ctx.funcFParam(i).IDENT().getText());
+                LLVMBuildStore(builder, LLVMGetParam(this.currentFuncRef, i), paramRef);
+                this.funcArrayElem.add(paramRef);
+                this.currentScope.define(ctx.funcFParam(i).IDENT().getText(), paramRef);
+            }
+            else {
+                LLVMValueRef paramRef = LLVMBuildAlloca(builder, i32Type, ctx.funcFParam(i).IDENT().getText());
+                LLVMBuildStore(builder, LLVMGetParam(this.currentFuncRef, i), paramRef);
+                this.currentScope.define(ctx.funcFParam(i).IDENT().getText(), paramRef);
+            }
         }
         return super.visitFuncFParams(ctx);
     }
@@ -322,7 +339,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
 
     @Override
     public LLVMValueRef visitBlock(SysYParser.BlockContext ctx) {
-//        if(ctx.getParent().getRuleIndex()!=10){
+        if(ctx.getParent().getRuleIndex()!=10){
 //            LLVMBasicBlockRef entry = LLVMAppendBasicBlockInContext(context,this.currentFuncRef,
 //                    LLVMGetValueName(this.currentFuncRef).getString()+"Block");
 //            LLVMBasicBlockRef past = this.currentBlock;
@@ -338,8 +355,8 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
 //            LLVMBuildBr(builder, this.currentBlock);
 //            LLVMPositionBuilderAtEnd(builder, this.currentBlock);
             return null;
-//        }
-//        return super.visitBlock(ctx);
+        }
+        return super.visitBlock(ctx);
     }
 
     @Override
@@ -398,9 +415,17 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
                 else if(ctx.lVal().exp(0) instanceof SysYParser.ExpParenthesisContext){
                     index = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.lVal().exp(0));
                 }
-                PointerPointer valuePointer = new PointerPointer (new LLVMValueRef[]{zero, index}) ;
-                LLVMValueRef pointer = LLVMBuildGEP(builder,array,valuePointer,2,"pointer");
-                lvalRef = pointer;
+                if(this.funcArrayElem.contains(array)){
+                    array = LLVMBuildLoad(builder,array,ctx.lVal().IDENT().getText());
+                    PointerPointer valuePointer = new PointerPointer(new LLVMValueRef[]{index});
+                    LLVMValueRef pointer = LLVMBuildGEP(builder, array, valuePointer, 1, "pointer");
+                    lvalRef = pointer;
+                }
+                else {
+                    PointerPointer valuePointer = new PointerPointer(new LLVMValueRef[]{zero, index});
+                    LLVMValueRef pointer = LLVMBuildGEP(builder, array, valuePointer, 2, "pointer");
+                    lvalRef = pointer;
+                }
             }
             else {
                 lvalRef = this.currentScope.resolve(ctx.lVal().IDENT().getText());
@@ -779,6 +804,7 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             llvmValueRef = visitUnaryOpExp((SysYParser.UnaryOpExpContext) ctx.exp());
         }
         else if(ctx.exp() instanceof SysYParser.LvalExpContext){
+            this.p = true;
             llvmValueRef = visitLvalExp((SysYParser.LvalExpContext) ctx.exp());
         }
         else if(ctx.exp() instanceof  SysYParser.CallFuncExpContext){
@@ -817,13 +843,33 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             else if(ctx.exp(0) instanceof SysYParser.ExpParenthesisContext){
                 index = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp(0));
             }
-            PointerPointer valuePointer = new PointerPointer (new LLVMValueRef[]{zero, index}) ;
-            LLVMValueRef pointer = LLVMBuildGEP(builder,array,valuePointer,2,"pointer");
-            retValue = LLVMBuildLoad(builder,pointer,ctx.IDENT().getText());
+            if(this.p){
+                this.p = false;
+                PointerPointer valuePointer = new PointerPointer(new LLVMValueRef[]{zero, index});
+                LLVMValueRef pointer = LLVMBuildGEP(builder, array, valuePointer, 2, "pointer");
+                return pointer;
+            }
+            if(this.funcArrayElem.contains(array)){
+                array = LLVMBuildLoad(builder,array,ctx.IDENT().getText());
+                PointerPointer valuePointer = new PointerPointer(new LLVMValueRef[]{index});
+                LLVMValueRef pointer = LLVMBuildGEP(builder, array, valuePointer, 1, "pointer");
+                retValue = LLVMBuildLoad(builder, pointer, ctx.IDENT().getText());
+            }
+            else {
+                PointerPointer valuePointer = new PointerPointer(new LLVMValueRef[]{zero, index});
+                LLVMValueRef pointer = LLVMBuildGEP(builder, array, valuePointer, 2, "pointer");
+                retValue = LLVMBuildLoad(builder, pointer, ctx.IDENT().getText());
+            }
         }
         else{
             LLVMValueRef temp = this.currentScope.resolve(ctx.IDENT().getText());
-            retValue = LLVMBuildLoad(builder,temp,ctx.IDENT().getText());
+            if(LLVMGetTypeKind(LLVMTypeOf(LLVMBuildLoad(builder,temp,"tmp"))) == LLVMArrayTypeKind){
+                PointerPointer valuePointer = new PointerPointer(new LLVMValueRef[]{zero,zero});
+                LLVMValueRef pointer = LLVMBuildGEP(builder, temp, valuePointer, 2, "pointer");
+                return pointer;
+            }
+            retValue = LLVMBuildLoad(builder, temp, ctx.IDENT().getText());
+
         }
         return retValue;
     }
