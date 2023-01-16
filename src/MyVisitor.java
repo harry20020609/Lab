@@ -843,12 +843,6 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             else if(ctx.exp(0) instanceof SysYParser.ExpParenthesisContext){
                 index = visitExpParenthesis((SysYParser.ExpParenthesisContext) ctx.exp(0));
             }
-            if(this.p){
-                this.p = false;
-                PointerPointer valuePointer = new PointerPointer(new LLVMValueRef[]{zero, index});
-                LLVMValueRef pointer = LLVMBuildGEP(builder, array, valuePointer, 2, "pointer");
-                return pointer;
-            }
             if(this.funcArrayElem.contains(array)){
                 array = LLVMBuildLoad(builder,array,ctx.IDENT().getText());
                 PointerPointer valuePointer = new PointerPointer(new LLVMValueRef[]{index});
@@ -863,7 +857,8 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
         }
         else{
             LLVMValueRef temp = this.currentScope.resolve(ctx.IDENT().getText());
-            if(LLVMGetTypeKind(LLVMTypeOf(LLVMBuildLoad(builder,temp,"tmp"))) == LLVMArrayTypeKind){
+            if(LLVMGetTypeKind(LLVMTypeOf(LLVMBuildLoad(builder,temp,"tmp"))) == LLVMArrayTypeKind && this.p){
+                this.p = false;
                 PointerPointer valuePointer = new PointerPointer(new LLVMValueRef[]{zero,zero});
                 LLVMValueRef pointer = LLVMBuildGEP(builder, temp, valuePointer, 2, "pointer");
                 return pointer;
