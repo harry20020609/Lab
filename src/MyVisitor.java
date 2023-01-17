@@ -81,7 +81,12 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             LLVMBuildRetVoid(builder);
             this.ret = false;
         }
-        LLVMBuildRet(builder,zero);
+        if(ctx.funcType().getText().equals("int")){
+            LLVMBuildRet(builder,zero);
+        }
+        else{
+            LLVMBuildRetVoid(builder);
+        }
         return null;
     }
 
