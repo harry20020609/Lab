@@ -1,26 +1,26 @@
 ; ModuleID = 'moudle'
 source_filename = "moudle"
 
-define i32 @f(i32* %0) {
-fEntry:
-  %a = alloca i32*, align 8
-  store i32* %0, i32** %a, align 8
-  %a1 = load i32*, i32** %a, align 8
-  %pointer = getelementptr i32, i32* %a1, i32 0
-  %a2 = load i32, i32* %pointer, align 4
-  ret i32 %a2
-}
-
 define i32 @main() {
 mainEntry:
-  %b = alloca [3 x i32], align 4
-  %pointer = getelementptr [3 x i32], [3 x i32]* %b, i32 0, i32 0
-  store i32 1, i32* %pointer, align 4
-  %pointer1 = getelementptr [3 x i32], [3 x i32]* %b, i32 0, i32 1
-  store i32 2, i32* %pointer1, align 4
-  %pointer2 = getelementptr [3 x i32], [3 x i32]* %b, i32 0, i32 2
-  store i32 3, i32* %pointer2, align 4
-  %pointer3 = getelementptr [3 x i32], [3 x i32]* %b, i32 0, i32 1
-  %b4 = load i32, i32* %pointer3, align 4
-  ret i32 %b4
+  %a = alloca i32, align 4
+  store i32 1, i32* %a, align 4
+  %tmp = load i32, i32* %a, align 4
+  %a1 = load i32, i32* %a, align 4
+  %cmp = icmp eq i32 %a1, 1
+  %cmp2 = zext i1 %cmp to i32
+  %cmp3 = icmp ne i32 %cmp2, 0
+  br i1 %cmp3, label %if_true, label %if_false
+
+if_true:                                          ; preds = %mainEntry
+  ret i32 1
+  br label %entry
+
+if_false:                                         ; preds = %mainEntry
+  ret i32 2
+  br label %entry
+
+entry:                                            ; preds = %if_false, %if_true
+  %space = alloca i32, align 4
+  ret i32 0
 }

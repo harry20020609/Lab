@@ -81,6 +81,9 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             LLVMBuildRetVoid(builder);
             this.ret = false;
         }
+        if(ctx.IDENT().getText().equals("main")){
+            LLVMBuildRet(builder,zero);
+        }
         return null;
     }
 
@@ -489,6 +492,8 @@ public class MyVisitor extends SysYParserBaseVisitor<LLVMValueRef> {
             LLVMBuildBr(builder,ret);
             this.currentBlock = ret;
             LLVMPositionBuilderAtEnd(builder,ret);
+            LLVMBuildAlloca(builder,i32Type,"space");
+
             return null;
         }
         else if(ctx.WHILE()!=null){
