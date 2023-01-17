@@ -21,6 +21,4 @@ if_false:                                         ; preds = %mainEntry
   br label %entry
 
 entry:                                            ; preds = %if_false, %if_true
-  %space = alloca i32, align 4
-  ret i32 0
 }
